@@ -184,6 +184,57 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
 }
 
 /**
+ * Mengambil detail satu tempat berdasarkan ID dari Supabase atau data fallback
+ */
+export async function getPlaceById(id: string): Promise<{
+  data: Place | null
+  isUsingFallback: boolean
+  error: string | null
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('places')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (error) {
+      console.warn('Gagal mengambil detail dari Supabase, mencari di data fallback:', error.message)
+      const fallback = DUMMY_PLACES.find(p => p.id === id) || null
+      return {
+        data: fallback,
+        isUsingFallback: true,
+        error: error.message
+      }
+    }
+
+    if (!data) {
+      // Cari di data fallback jika tidak ditemukan di DB
+      const fallback = DUMMY_PLACES.find(p => p.id === id) || null
+      return {
+        data: fallback,
+        isUsingFallback: true,
+        error: null
+      }
+    }
+
+    return {
+      data,
+      isUsingFallback: false,
+      error: null
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+    const fallback = DUMMY_PLACES.find(p => p.id === id) || null
+    return {
+      data: fallback,
+      isUsingFallback: true,
+      error: errorMsg
+    }
+  }
+}
+
+/**
  * Filter lokal untuk data fallback jika database belum berisi data
  */
 function applyClientFilter(places: Place[], options: PlaceFilterOptions): Place[] {

@@ -1,16 +1,42 @@
 @import "tailwindcss";
 
+@theme {
+  --color-cafe-bg: #FAF6F0;
+  --color-cafe-card: #FFFDF9;
+  --color-cafe-primary: #6F4E37;
+  --color-cafe-secondary: #A0816C;
+  --color-cafe-accent: #D99B82;
+  --color-cafe-badge: #F3E9DD;
+  --color-cafe-green: #8FB996;
+  --color-cafe-text: #4A3E3D;
+  --color-cafe-lightText: #8C7A6B;
+  --color-cafe-light-text: #8C7A6B;
+
+  --font-heading: 'Fredoka', sans-serif;
+  --font-body: 'Nunito', sans-serif;
+
+  --shadow-cozy: 0 10px 30px -5px rgba(111, 78, 55, 0.08), 0 4px 12px -2px rgba(111, 78, 55, 0.04);
+  --shadow-cozy-hover: 0 20px 35px -5px rgba(111, 78, 55, 0.15), 0 8px 16px -2px rgba(111, 78, 55, 0.08);
+}
+
 :root {
-  font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, sans-serif;
+  font-family: 'Nunito', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  font-family: 'Nunito', sans-serif;
   background-color: #FAF6F0;
-  color: #382E2B;
+  background-image: radial-gradient(#E8DFD5 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: #4A3E3D;
   -webkit-font-smoothing: antialiased;
+}
+
+.heading-font {
+  font-family: 'Fredoka', sans-serif;
 }
 
 /* Custom playful aesthetic scrollbar */

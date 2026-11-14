@@ -126,17 +126,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <button
               type="button"
               onClick={() => onFilterChange({})}
-              className="text-xs text-[#C86D51] hover:underline font-semibold ml-auto px-2 py-1"
+              className="text-xs text-[#C86D51] hover:underline font-semibold px-2 py-1"
             >
               Hapus Filter
             </button>
           )}
+
+        {/* Counter Total Tempat */}
+        <span className="sm:ml-auto text-[11px] font-bold text-[#8C6D58] bg-[#F4ECE1] px-3 py-1 rounded-full border border-[#E5DACD]">
+          {totalResults} tempat ditemukan
+        </span>
       </div>
 
-      {/* Result Count Info */}
-      <div className="text-center sm:text-left text-xs text-[#8C6D58] font-medium pt-1">
-        Ditemukan <span className="font-bold text-[#2D231E]">{totalResults}</span> tempat yang pas buat fokus nugas.
-      </div>
+      
     </div>
   )
 }

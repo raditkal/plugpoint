@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react'
-import { Sparkles, Compass, RefreshCw, Coffee, Heart } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Compass, RefreshCw, Coffee } from 'lucide-react'
 import SearchBar from '../components/SearchBar'
 import PlaceCard from '../components/PlaceCard'
 import { getPlaces } from '../services/places'
@@ -13,24 +13,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
   const [places, setPlaces] = useState<Place[]>([])
   const [filterOptions, setFilterOptions] = useState<PlaceFilterOptions>({})
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isFallback, setIsFallback] = useState<boolean>(false)
 
   const fetchPlaces = async (options: PlaceFilterOptions) => {
     setIsLoading(true)
     const result = await getPlaces(options)
     setPlaces(result.data)
-    setIsFallback(result.isUsingFallback)
     setIsLoading(false)
   }
 
   useEffect(() => {
     fetchPlaces(filterOptions)
   }, [filterOptions])
-
-  // Bagian Rekomendasi Pilihan
-  const recommendedPlaces = useMemo(() => {
-    return places.filter(p => (p.wifi_rating ?? 0) >= 4 && p.outlet_level === 'many').slice(0, 3)
-  }, [places])
 
   return (
     <div className="min-h-screen pb-20 bg-[#FAF6F0]">
@@ -41,12 +34,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
 
           {/* Calming Warm Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#2D231E] max-w-2xl mx-auto leading-tight">
-            Batre aman,
+            Batre Aman,
             <br />
-            Nugas tenang,
+            Nugas Senang,
               <br />
             <span className="text-[#C86D51] underline decoration-[#F4CDBE] decoration-wavy decoration-2">
-              Pikiran senang!
+              Pikiran Tenang..
             </span>
           </h1>
 
@@ -63,46 +56,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
 
       {/* MAIN DIRECTORY CONTENT */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 space-y-14">
-        {/* Banner Lembut Data Demo */}
-        {isFallback && !isLoading && (
-          <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#FFF9F3] border border-[#F2DFCE] text-xs sm:text-sm text-[#7A5B45]">
-            <span className="text-lg">💡</span>
-            <p>
-              <strong className="text-[#2D231E]">Menampilkan Tempat Demo:</strong> Tabel database Supabase kamu masih kosong. Tempat-tempat di bawah ini adalah data contoh untuk melihat tampilan direktori.
-            </p>
-          </div>
-        )}
-
-        {/* SECTION: REKOMENDASI FAVORIT */}
-        {!filterOptions.searchQuery && recommendedPlaces.length > 0 && !isLoading && (
-          <section className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#F4EBE1] border border-[#E5DACD] flex items-center justify-center text-[#C86D51]">
-                  <Heart className="w-5 h-5 fill-current" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black text-[#2D231E]">
-                    Favorit Anak Nugas ☕
-                  </h2>
-                  <p className="text-xs text-[#7A6B63]">
-                    Paling juara: Wi-Fi ngebut (≥4★) dan colokan melimpah
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedPlaces.map(place => (
-                <PlaceCard
-                  key={`rec-${place.id}`}
-                  place={place}
-                  onDetailClick={onSelectPlace}
-                />
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* SECTION: SEMUA DAFTAR TEMPAT */}
         <section className="space-y-6">
