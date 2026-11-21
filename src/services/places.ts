@@ -361,3 +361,29 @@ export async function createPlace(placeData: PlaceInsert): Promise<{
     return { data: null, error: errorMsg }
   }
 }
+
+/**
+ * Mengambil daftar tempat yang diajukan oleh pengguna tertentu (semua status: pending, approved, rejected, needs_revision)
+ */
+export async function getMyPlaces(userId: string): Promise<{
+  data: Place[]
+  error: string | null
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('places')
+      .select('*, profiles:created_by(id, display_name, contributor_status)')
+      .eq('created_by', userId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('Gagal memuat tempat pengguna dari Supabase:', error.message)
+      return { data: [], error: error.message }
+    }
+
+    return { data: (data as Place[]) || [], error: null }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem'
+    return { data: [], error: errorMsg }
+  }
+}

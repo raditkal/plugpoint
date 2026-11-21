@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import AddPlacePage from './pages/AddPlacePage'
 import AdminPage from './pages/AdminPage'
+import MyPlacesPage from './pages/MyPlacesPage'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -68,6 +69,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <AddPlacePage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-places"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <MyPlacesPage />
                 </Layout>
               </ProtectedRoute>
             }

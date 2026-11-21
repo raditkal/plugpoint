@@ -12,7 +12,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
-  Sparkles
+  Sparkles,
+  Clock3
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { createPlace, getShortId } from '../services/places'
@@ -100,14 +101,24 @@ export const AddPlacePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAF6F0] py-10 px-4 sm:px-6 lg:px-8 text-[#382E2B]">
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Tombol Kembali */}
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-xs font-bold text-[#7A6B63] hover:text-[#2D231E] transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 text-[#C86D51]" />
-          Kembali ke Direktori
-        </Link>
+        {/* Navigasi Atas */}
+        <div className="flex items-center justify-between">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#7A6B63] hover:text-[#2D231E] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#C86D51]" />
+            Kembali ke Direktori
+          </Link>
+
+          <Link
+            to="/my-places"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-[#FAF7F2] text-xs font-bold text-[#5C4A3E] border border-[#DFD3C3] shadow-2xs transition-colors"
+          >
+            <Clock3 className="w-3.5 h-3.5 text-[#C86D51]" />
+            <span>Lihat Tempat Saya</span>
+          </Link>
+        </div>
 
         {/* Card Header */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EFE7DE] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -158,6 +169,12 @@ export const AddPlacePage: React.FC = () => {
                   Lihat Halaman Tempat
                 </Link>
               )}
+              <Link
+                to="/my-places"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3]"
+              >
+                Lihat Daftar Tempat Saya
+              </Link>
               <Link
                 to="/"
                 className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#382E2B] hover:bg-[#251D1A] text-white text-xs font-bold transition-all"
