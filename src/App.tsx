@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { FavoritesProvider } from './context/FavoritesContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
@@ -42,8 +43,9 @@ function Layout({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+      <FavoritesProvider>
+        <BrowserRouter>
+          <Routes>
           {/* Halaman Publik */}
           <Route
             path="/"
@@ -96,6 +98,11 @@ function App() {
             }
           />
 
+          <Route
+            path="/favorites"
+            element={<Navigate to="/my-places?tab=favorites" replace />}
+          />
+
           {/* Halaman Autentikasi Mandiri */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -104,7 +111,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
+    </FavoritesProvider>
+  </AuthProvider>
   )
 }
 

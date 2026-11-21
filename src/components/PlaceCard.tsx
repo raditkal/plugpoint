@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Wifi, Clock, MapPin, ArrowRight, Heart } from 'lucide-react'
 import type { Place } from '../types/place'
 import { getShortId } from '../services/places'
+import { useFavorites } from '../context/FavoritesContext'
 
 interface PlaceCardProps {
   place: Place
@@ -20,7 +21,8 @@ const CAFE_IMAGES = [
 ]
 
 export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) => {
-  const [isFavorite, setIsFavorite] = useState(false)
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const favorite = isFavorite(place.id)
 
   // Dapatkan URL gambar berdasarkan place atau fallback variatif
   const getImageSource = () => {
@@ -107,14 +109,14 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
           type="button"
           onClick={(e) => {
             e.stopPropagation()
-            setIsFavorite(!isFavorite)
+            toggleFavorite(place.id)
           }}
-          className={`absolute top-3.5 left-3.5 w-9 h-9 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 active:scale-95 ${
-            isFavorite ? 'text-rose-500 scale-105' : 'text-rose-400 hover:text-rose-500'
+          className={`absolute top-3.5 left-3.5 w-9 h-9 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 active:scale-95 cursor-pointer ${
+            favorite ? 'text-rose-500 scale-105' : 'text-[#8C7A70] hover:text-rose-500'
           }`}
-          title={isFavorite ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+          title={favorite ? 'Hapus dari favorit' : 'Simpan ke favorit'}
         >
-          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500' : ''}`} />
+          <Heart className={`w-4 h-4 transition-transform ${favorite ? 'fill-rose-500 text-rose-500' : ''}`} />
         </button>
       </div>
 

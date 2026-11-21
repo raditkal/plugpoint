@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, User, Coffee, LogOut, ShieldCheck, ChevronDown, CheckCircle, MapPin, Clock3 } from 'lucide-react'
+import { Plus, User, Coffee, LogOut, ShieldCheck, ChevronDown, CheckCircle, MapPin, Clock3, Heart } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export const Navbar: React.FC = () => {
@@ -107,6 +107,15 @@ export const Navbar: React.FC = () => {
                     >
                       <MapPin className="w-4 h-4 text-[#C86D51]" />
                       <span>Tempat Kontribusi Saya</span>
+                    </Link>
+
+                    <Link
+                      to="/my-places?tab=favorites"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[#382E2B] hover:bg-[#FAF6F0] font-medium transition-colors"
+                    >
+                      <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                      <span>Tempat Favorit Saya</span>
                     </Link>
 
                     {isAdmin && (
