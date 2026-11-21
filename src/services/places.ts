@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import type { Place, PlaceFilterOptions } from '../types/place'
+import type { Place, PlaceInsert, PlaceFilterOptions } from '../types/place'
 
 // Data fallback/dummy realistis jika database Supabase belum diisi tempat
 export const DUMMY_PLACES: Place[] = [
@@ -274,4 +274,30 @@ function applyClientFilter(places: Place[], options: PlaceFilterOptions): Place[
   }
 
   return result
+}
+
+/**
+ * Mengajukan / menambahkan tempat baru ke database Supabase
+ */
+export async function createPlace(placeData: PlaceInsert): Promise<{
+  data: Place | null
+  error: string | null
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('places')
+      .insert(placeData as any)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Gagal menambahkan tempat ke Supabase:', error.message)
+      return { data: null, error: error.message }
+    }
+
+    return { data, error: null }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem'
+    return { data: null, error: errorMsg }
+  }
 }

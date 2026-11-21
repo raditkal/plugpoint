@@ -1,39 +1,45 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Coffee, Lock, Mail, AlertCircle } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { ArrowLeft, Coffee, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 export const LoginPage: React.FC = () => {
+  const { signIn, user } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const [infoMsg, setInfoMsg] = useState<string | null>(null)
+
+  // Redirect jika sudah dalam status login
+  useEffect(() => {
+    if (user) {
+      const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/'
+      navigate(from, { replace: true })
+    }
+  }, [user, navigate, location])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
-    setInfoMsg(null)
     setIsLoading(true)
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+    const res = await signIn(email.trim(), password)
+    setIsLoading(false)
 
-      if (error) {
-        setErrorMsg(error.message)
+    if (res.error) {
+      if (res.error.message.includes('Invalid login credentials')) {
+        setErrorMsg('Email atau kata sandi yang kamu masukkan salah.')
+      } else if (res.error.message.includes('Email not confirmed')) {
+        setErrorMsg('Email kamu belum dikonfirmasi. Cek kotak masuk atau spam email ya.')
       } else {
-        setInfoMsg('Berhasil masuk! Mengalihkan...')
-        setTimeout(() => {
-          window.location.href = '/'
-        }, 1000)
+        setErrorMsg(res.error.message)
       }
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Terjadi kesalahan')
-    } finally {
-      setIsLoading(false)
+    } else {
+      const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/'
+      navigate(from, { replace: true })
     }
   }
 
@@ -54,30 +60,23 @@ export const LoginPage: React.FC = () => {
           Selamat Datang Kembali
         </h2>
         <p className="text-xs text-[#7A6B63]">
-          Masuk untuk mengusulkan dan memperbarui spot kerja favoritmu
+          Masuk untuk merekomendasikan spot kerja favoritmu
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 shadow-sm rounded-3xl border border-[#EFE7DE] sm:px-10 space-y-6">
           {errorMsg && (
-            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
               <span>{errorMsg}</span>
-            </div>
-          )}
-
-          {infoMsg && (
-            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2">
-              <span>☕</span>
-              <span>{infoMsg}</span>
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-[#4A3B32] mb-1.5">
-                Email
+                Alamat Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A6978C]">
@@ -89,7 +88,7 @@ export const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="kamu@email.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                 />
               </div>
             </div>
@@ -108,7 +107,7 @@ export const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                 />
               </div>
             </div>
@@ -116,9 +115,16 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-full bg-[#382E2B] hover:bg-[#251D1A] text-white text-xs font-bold transition-all shadow-sm active:scale-98 disabled:opacity-50"
+              className="w-full py-3 rounded-full bg-[#382E2B] hover:bg-[#251D1A] text-white text-xs font-bold transition-all shadow-sm active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isLoading ? 'Memeriksa...' : 'Masuk ke Akun'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#F4CDBE]" />
+                  <span>Memeriksa Akun...</span>
+                </>
+              ) : (
+                <span>Masuk ke Akun</span>
+              )}
             </button>
           </form>
 
@@ -135,4 +141,3 @@ export const LoginPage: React.FC = () => {
 }
 
 export default LoginPage
-

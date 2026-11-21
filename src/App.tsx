@@ -1,5 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 import PlaceDetailPage from './pages/PlaceDetailPage'
@@ -38,50 +40,60 @@ function Layout({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Halaman dengan Navbar & Footer */}
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <HomePage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/places/:id"
-          element={
-            <Layout>
-              <PlaceDetailPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/add-place"
-          element={
-            <Layout>
-              <AddPlacePage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <Layout>
-              <AdminPage />
-            </Layout>
-          }
-        />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Halaman Publik */}
+          <Route
+            path="/"
+            element={
+              <Layout>
+                <HomePage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/places/:id"
+            element={
+              <Layout>
+                <PlaceDetailPage />
+              </Layout>
+            }
+          />
 
-        {/* Halaman Autentikasi Mandiri */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+          {/* Halaman yang Membutuhkan Login */}
+          <Route
+            path="/add-place"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AddPlacePage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Fallback rute yang tidak dikenal */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Halaman Khusus Admin */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin>
+                <Layout>
+                  <AdminPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Halaman Autentikasi Mandiri */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Fallback rute yang tidak dikenal */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

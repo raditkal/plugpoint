@@ -1,41 +1,47 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Coffee, Lock, Mail, User, AlertCircle, CheckCircle2 } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ArrowLeft, Coffee, Lock, Mail, User, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 export const RegisterPage: React.FC = () => {
-  const [username, setUsername] = useState('')
+  const { signUp, user } = useAuth()
+  const navigate = useNavigate()
+
+  const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
 
+  // Redirect jika sudah login
+  useEffect(() => {
+    if (user && !isSuccess) {
+      navigate('/', { replace: true })
+    }
+  }, [user, navigate, isSuccess])
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
+
+    if (password.length < 6) {
+      setErrorMsg('Kata sandi harus minimal 6 karakter.')
+      return
+    }
+
     setIsLoading(true)
+    const res = await signUp(email.trim(), password, displayName.trim())
+    setIsLoading(false)
 
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username: username.trim(),
-          },
-        },
-      })
-
-      if (error) {
-        setErrorMsg(error.message)
+    if (res.error) {
+      if (res.error.message.includes('User already registered')) {
+        setErrorMsg('Email ini sudah terdaftar. Silakan langsung masuk.')
       } else {
-        setIsSuccess(true)
+        setErrorMsg(res.error.message)
       }
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Terjadi kesalahan')
-    } finally {
-      setIsLoading(false)
+    } else {
+      setIsSuccess(true)
     }
   }
 
@@ -53,7 +59,7 @@ export const RegisterPage: React.FC = () => {
           <Coffee className="w-7 h-7" />
         </div>
         <h2 className="text-3xl font-black text-[#2D231E] tracking-tight">
-          Gabung Komunitas Plugpoint
+          Gabung Plugpoint
         </h2>
         <p className="text-xs text-[#7A6B63]">
           Mulai rekomendasikan tempat kerja dengan Wi-Fi kencang dan banyak colokan
@@ -63,8 +69,8 @@ export const RegisterPage: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 shadow-sm rounded-3xl border border-[#EFE7DE] sm:px-10 space-y-6">
           {errorMsg && (
-            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
               <span>{errorMsg}</span>
             </div>
           )}
@@ -74,22 +80,24 @@ export const RegisterPage: React.FC = () => {
               <div className="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-[#2D231E]">Pendaftaran Berhasil!</h3>
+              <h3 className="text-base font-bold text-[#2D231E]">Pendaftaran Berhasil! 🎉</h3>
               <p className="text-xs text-[#7A6B63] leading-relaxed">
-                Silakan periksa kotak masuk email kamu untuk konfirmasi, lalu masuk ke akun.
+                Akunmu sudah dibuat. Cek kotak masuk email kamu jika Supabase mengaktifkan konfirmasi email, atau langsung klik tombol di bawah untuk masuk.
               </p>
-              <Link
-                to="/login"
-                className="mt-4 inline-block py-2.5 px-6 rounded-full bg-[#382E2B] text-white text-xs font-bold"
-              >
-                Ke Halaman Masuk
-              </Link>
+              <div className="pt-2">
+                <Link
+                  to="/login"
+                  className="inline-block py-2.5 px-6 rounded-full bg-[#382E2B] text-white text-xs font-bold hover:bg-[#251D1A] transition-all"
+                >
+                  Masuk ke Akun
+                </Link>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[#4A3B32] mb-1.5">
-                  Nama Pengguna / Username
+                  Nama Lengkap / Panggilan
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A6978C]">
@@ -98,17 +106,17 @@ export const RegisterPage: React.FC = () => {
                   <input
                     type="text"
                     required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="nama_kamu"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Contoh: Rian Pratama"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#4A3B32] mb-1.5">
-                  Email
+                  Alamat Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A6978C]">
@@ -120,7 +128,7 @@ export const RegisterPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="kamu@email.com"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                   />
                 </div>
               </div>
@@ -140,7 +148,7 @@ export const RegisterPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Minimal 6 karakter"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                   />
                 </div>
               </div>
@@ -148,9 +156,16 @@ export const RegisterPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold transition-all shadow-sm active:scale-98 disabled:opacity-50"
+                className="w-full py-3 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold transition-all shadow-sm active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isLoading ? 'Mendaftarkan...' : 'Daftar Sekarang'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Mendaftarkan Akun...</span>
+                  </>
+                ) : (
+                  <span>Daftar Sekarang</span>
+                )}
               </button>
             </form>
           )}
@@ -168,4 +183,3 @@ export const RegisterPage: React.FC = () => {
 }
 
 export default RegisterPage
-
