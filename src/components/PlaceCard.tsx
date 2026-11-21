@@ -26,9 +26,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
 
   // Dapatkan URL gambar berdasarkan place atau fallback variatif
   const getImageSource = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const customImage = (place as any).image_url
-    if (customImage) return customImage
+    if (place.image_url) return place.image_url
 
     // Hash nama tempat untuk memilih gambar cafe konsisten
     const hash = (place.id || place.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)

@@ -79,9 +79,9 @@ export const PlaceDetailPage: React.FC = () => {
     )
   }
 
-  // Pilih gambar berdasarkan ID
+  // Pilih gambar berdasarkan data tempat atau fallback estetik
   const hash = (place.id || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
-  const heroImage = DETAIL_IMAGES[Math.abs(hash) % DETAIL_IMAGES.length]
+  const heroImage = place.image_url || DETAIL_IMAGES[Math.abs(hash) % DETAIL_IMAGES.length]
 
   // Parsing opening hours
   const hours = place.opening_hours as { daily?: { open?: string; close?: string } } | null

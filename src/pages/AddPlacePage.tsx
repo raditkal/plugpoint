@@ -13,11 +13,38 @@ import {
   CheckCircle2,
   Loader2,
   Sparkles,
-  Clock3
+  Clock3,
+  Image as ImageIcon,
+  Upload,
+  X
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { createPlace, getShortId } from '../services/places'
 import type { OutletLevel, NoiseLevel, PlaceInsert } from '../types/place'
+
+// Pilihan cepat foto kafe aesthetic
+const PRESET_CAFE_IMAGES = [
+  {
+    label: 'Warm Lofi',
+    url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    label: 'Modern Minimalis',
+    url: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    label: 'Green Workspace',
+    url: 'https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    label: 'Espresso Bar',
+    url: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    label: 'Quiet Study Spot',
+    url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&q=80&w=800',
+  },
+]
 
 export const AddPlacePage: React.FC = () => {
   const { user, isTrustedContributor, isAdmin } = useAuth()
@@ -26,6 +53,7 @@ export const AddPlacePage: React.FC = () => {
   const [name, setName] = useState('')
   const [area, setArea] = useState('')
   const [address, setAddress] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [wifiRating, setWifiRating] = useState<number>(4)
   const [wifiSpeed, setWifiSpeed] = useState<string>('')
   const [outletLevel, setOutletLevel] = useState<OutletLevel>('many')
@@ -40,6 +68,23 @@ export const AddPlacePage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [createdPlaceId, setCreatedPlaceId] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
+
+  // Upload handler untuk file lokal
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg('Ukuran file maksimal 5MB.')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImageUrl(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,6 +119,7 @@ export const AddPlacePage: React.FC = () => {
       name: name.trim(),
       area: area.trim(),
       address: address.trim(),
+      image_url: imageUrl.trim() || null,
       wifi_rating: wifiRating || null,
       wifi_speed_mbps: wifiSpeed ? parseFloat(wifiSpeed) : null,
       outlet_level: outletLevel,
@@ -187,6 +233,7 @@ export const AddPlacePage: React.FC = () => {
                   setIsSuccess(false)
                   setName('')
                   setAddress('')
+                  setImageUrl('')
                   setNotes('')
                   setWifiSpeed('')
                 }}
@@ -258,11 +305,106 @@ export const AddPlacePage: React.FC = () => {
               </div>
             </div>
 
-            {/* SEKSI 2: FASILITAS KERJA (WI-FI & COLOKAN) */}
+            {/* SEKSI 2: FOTO SUASANA TEMPAT */}
+            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-[#F2E8DC] pb-3">
+                <h2 className="text-sm font-black text-[#2D231E] flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-[#C86D51]" />
+                  <span>2. Foto Suasana Tempat</span>
+                </h2>
+                <span className="text-[11px] text-[#A6978C] font-semibold">Opsional</span>
+              </div>
+
+              {/* Live Preview Box */}
+              {imageUrl ? (
+                <div className="relative rounded-2xl overflow-hidden border border-[#E8DFD3] h-48 sm:h-56 group">
+                  <img
+                    src={imageUrl}
+                    alt="Preview Tempat"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = PRESET_CAFE_IMAGES[0].url
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="px-3 py-1.5 rounded-full bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>Hapus Foto</span>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Input URL atau File Upload */}
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-[#4A3B32]">
+                    Link URL Foto Tempat
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="Tempel link URL gambar (misal: https://images.unsplash.com/...)"
+                      className="flex-1 px-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
+                    />
+                    <label className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#F2ECE3] hover:bg-[#E8DFD3] border border-[#DFD3C3] text-xs font-bold text-[#4A3B32] transition-colors cursor-pointer shrink-0">
+                      <Upload className="w-3.5 h-3.5 text-[#C86D51]" />
+                      <span className="hidden sm:inline">Unggah File</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Preset Galeri Kafe Cepat */}
+                <div className="space-y-2 pt-1">
+                  <p className="text-[11px] font-bold text-[#7A6B63]">
+                    Atau pilih foto suasana cepat:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {PRESET_CAFE_IMAGES.map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => setImageUrl(preset.url)}
+                        className={`group relative rounded-2xl overflow-hidden border p-1 text-left transition-all cursor-pointer ${
+                          imageUrl === preset.url
+                            ? 'border-[#C86D51] ring-2 ring-[#C86D51]/30 bg-[#FAF2EB]'
+                            : 'border-[#E8DFD3] hover:border-[#D5C4B1] bg-[#FAF7F2]'
+                        }`}
+                      >
+                        <div className="h-14 w-full rounded-xl overflow-hidden mb-1">
+                          <img
+                            src={preset.url}
+                            alt={preset.label}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                        <p className="text-[10px] font-bold text-[#4A3B32] truncate px-0.5">
+                          {preset.label}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SEKSI 3: FASILITAS KERJA (WI-FI & COLOKAN) */}
             <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-5">
               <h2 className="text-sm font-black text-[#2D231E] flex items-center gap-2 border-b border-[#F2E8DC] pb-3">
                 <Wifi className="w-4 h-4 text-[#C86D51]" />
-                <span>2. Fasilitas Wi-Fi & Kebutuhan Daya</span>
+                <span>3. Fasilitas Wi-Fi & Kebutuhan Daya</span>
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -417,11 +559,11 @@ export const AddPlacePage: React.FC = () => {
               </div>
             </div>
 
-            {/* SEKSI 3: OPERASIONAL & CATATAN */}
+            {/* SEKSI 4: OPERASIONAL & CATATAN */}
             <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-4">
               <h2 className="text-sm font-black text-[#2D231E] flex items-center gap-2 border-b border-[#F2E8DC] pb-3">
                 <Clock className="w-4 h-4 text-[#C86D51]" />
-                <span>3. Jam Operasional & Catatan Tambahan</span>
+                <span>4. Jam Operasional & Catatan Tambahan</span>
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

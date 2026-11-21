@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS public.places (
   opening_hours JSONB,
   quiet_hours TEXT,
   notes TEXT,
+  image_url TEXT,
   created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
   status TEXT NOT NULL DEFAULT 'pending' 
     CHECK (status IN ('pending', 'approved', 'rejected', 'needs_revision')),

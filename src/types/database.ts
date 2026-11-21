@@ -64,6 +64,7 @@ export interface Database {
           opening_hours: Json | null
           quiet_hours: string | null
           notes: string | null
+          image_url?: string | null
           created_by: string | null
           status: PlaceStatus
           rejection_reason: string | null
@@ -84,6 +85,7 @@ export interface Database {
           opening_hours?: Json | null
           quiet_hours?: string | null
           notes?: string | null
+          image_url?: string | null
           created_by?: string | null
           status?: PlaceStatus
           rejection_reason?: string | null
@@ -104,6 +106,7 @@ export interface Database {
           opening_hours?: Json | null
           quiet_hours?: string | null
           notes?: string | null
+          image_url?: string | null
           created_by?: string | null
           status?: PlaceStatus
           rejection_reason?: string | null

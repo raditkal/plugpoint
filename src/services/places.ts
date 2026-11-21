@@ -344,11 +344,25 @@ export async function createPlace(placeData: PlaceInsert): Promise<{
   error: string | null
 }> {
   try {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('places')
       .insert(placeData as any)
       .select()
       .single()
+
+    // Jika kolom image_url belum dibuat di Supabase, coba simpan ulang tanpa field image_url
+    if (error && error.message.toLowerCase().includes('image_url')) {
+      console.warn('Kolom image_url belum ada di Supabase, menyimpan tanpa field image_url...')
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { image_url, ...restData } = placeData as any
+      const retry = await supabase
+        .from('places')
+        .insert(restData)
+        .select()
+        .single()
+      data = retry.data
+      error = retry.error
+    }
 
     if (error) {
       console.error('Gagal menambahkan tempat ke Supabase:', error.message)
