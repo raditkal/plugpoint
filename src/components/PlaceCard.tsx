@@ -165,6 +165,30 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
               </span>
             ))}
           </div>
+
+          {/* Kontributor Info */}
+          <div className="flex items-center justify-between text-[11px] text-[#7A6B63] pt-1">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <div className="w-5 h-5 rounded-full bg-[#EFE4D6] text-[#8C6D58] flex items-center justify-center font-bold text-[10px] shrink-0 border border-[#DFD3C3]">
+                {(place.profiles?.display_name || 'K').charAt(0).toUpperCase()}
+              </div>
+              <span className="truncate">
+                Oleh{' '}
+                <strong className="text-[#2D231E] font-semibold">
+                  {place.profiles?.display_name || 'Komunitas Plugpoint'}
+                </strong>
+              </span>
+            </div>
+
+            {place.profiles?.contributor_status === 'trusted' && (
+              <span
+                className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0"
+                title="Kontributor Tepercaya"
+              >
+                ✓ Trusted
+              </span>
+            )}
+          </div>
         </div>
 
         <div>

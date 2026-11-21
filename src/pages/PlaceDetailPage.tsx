@@ -119,9 +119,15 @@ export const PlaceDetailPage: React.FC = () => {
                 {place.area || 'Tempat Kerja'}
               </span>
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{place.name}</h1>
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-[#F4EDE3]">
-                <MapPin className="w-4 h-4 text-[#F4CDBE] shrink-0" />
-                <span>{place.address}</span>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-[#F4EDE3]">
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-[#F4CDBE] shrink-0" />
+                  <span>{place.address}</span>
+                </div>
+                <span className="opacity-50 hidden sm:inline">•</span>
+                <span className="bg-black/30 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-xs text-[#FAF6F0]">
+                  Direkomendasikan oleh <strong className="text-white">{place.profiles?.display_name || 'Komunitas Plugpoint'}</strong>
+                </span>
               </div>
             </div>
           </div>

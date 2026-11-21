@@ -20,6 +20,7 @@ export const DUMMY_PLACES: Place[] = [
     quiet_hours: '08:00 - 14:00',
     notes: 'Colokan di hampir setiap meja, kursi ergonomis, dan playlist lofi tenang.',
     created_by: null,
+    profiles: { display_name: 'Sarah Amalia', contributor_status: 'trusted' },
     status: 'approved',
     rejection_reason: null,
     created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
@@ -42,6 +43,7 @@ export const DUMMY_PLACES: Place[] = [
     quiet_hours: 'Sepanjang hari',
     notes: 'Ada bilik telepon peredam suara untuk meeting online dan free flow kopi.',
     created_by: null,
+    profiles: { display_name: 'Dimas Aditya', contributor_status: 'unverified' },
     status: 'approved',
     rejection_reason: null,
     created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
@@ -64,6 +66,7 @@ export const DUMMY_PLACES: Place[] = [
     quiet_hours: '09:00 - 12:00',
     notes: 'Lantai 2 khusus area laptop. Suasana ramai santai saat sore hari.',
     created_by: null,
+    profiles: { display_name: 'Rian Pratama', contributor_status: 'trusted' },
     status: 'approved',
     rejection_reason: null,
     created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
@@ -86,6 +89,7 @@ export const DUMMY_PLACES: Place[] = [
     quiet_hours: '13:00 - 18:00',
     notes: 'Suasana sangat sunyi cocok untuk skripsi/membaca. Colokan terbatas di area dinding.',
     created_by: null,
+    profiles: { display_name: 'Nadia Putri', contributor_status: 'unverified' },
     status: 'approved',
     rejection_reason: null,
     created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
@@ -108,6 +112,7 @@ export const DUMMY_PLACES: Place[] = [
     quiet_hours: '21:00 - 03:00',
     notes: 'Buka sampai dini hari jam 03.00, colokan per orang ada 2 lubang.',
     created_by: null,
+    profiles: { display_name: 'Budi Santoso', contributor_status: 'trusted' },
     status: 'approved',
     rejection_reason: null,
     created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
@@ -127,7 +132,7 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
   try {
     let query = supabase
       .from('places')
-      .select('*')
+      .select('*, profiles:created_by(id, display_name, contributor_status)')
       .eq('status', 'approved')
       .order('created_at', { ascending: false })
 
@@ -230,7 +235,7 @@ export async function getPlaceById(id: string): Promise<{
     const cleanId = id.trim().toLowerCase()
     const isFullUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
 
-    let query = supabase.from('places').select('*')
+    let query = supabase.from('places').select('*, profiles:created_by(id, display_name, contributor_status)')
 
     if (isFullUuid) {
       query = query.eq('id', cleanId)

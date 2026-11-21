@@ -1,6 +1,12 @@
 import type { Database, OutletLevel, NoiseLevel, PlaceStatus, ReportStatus, ReportReason } from './database'
 
-export type Place = Database['public']['Tables']['places']['Row']
+export type Place = Database['public']['Tables']['places']['Row'] & {
+  profiles?: {
+    id?: string
+    display_name?: string
+    contributor_status?: string
+  } | null
+}
 export type PlaceInsert = Database['public']['Tables']['places']['Insert']
 export type PlaceUpdate = Database['public']['Tables']['places']['Update']
 
