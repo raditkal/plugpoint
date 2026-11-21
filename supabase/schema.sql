@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS public.places (
   status TEXT NOT NULL DEFAULT 'pending' 
     CHECK (status IN ('pending', 'approved', 'rejected', 'needs_revision')),
   rejection_reason TEXT,
+  favorites_count INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -108,6 +109,21 @@ CREATE TABLE IF NOT EXISTS public.place_reviews (
 
 COMMENT ON TABLE public.place_reviews IS 'Ulasan spesifik pengguna dengan 1 review aktif per tempat';
 CREATE INDEX IF NOT EXISTS idx_place_reviews_place_id ON public.place_reviews(place_id);
+
+-- ==============================================================================
+-- 6. TABEL FAVORITES
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.favorites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  place_id UUID NOT NULL REFERENCES public.places(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT unique_user_place_favorite UNIQUE (user_id, place_id)
+);
+
+COMMENT ON TABLE public.favorites IS 'Favorit tempat per pengguna — sinkron antar perangkat';
+CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON public.favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_place_id ON public.favorites(place_id);
 
 -- ==============================================================================
 -- 6. SECURITY HELPER FUNCTIONS (SECURITY DEFINER)
@@ -215,6 +231,32 @@ DROP TRIGGER IF EXISTS tr_reviews_updated_at ON public.place_reviews;
 CREATE TRIGGER tr_reviews_updated_at
   BEFORE UPDATE ON public.place_reviews
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- Trigger D: Otomatis update favorites_count di places saat row favorites ditambah/hapus
+CREATE OR REPLACE FUNCTION public.handle_favorites_count()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE public.places
+    SET favorites_count = favorites_count + 1
+    WHERE id = NEW.place_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE public.places
+    SET favorites_count = GREATEST(0, favorites_count - 1)
+    WHERE id = OLD.place_id;
+  END IF;
+  RETURN NULL;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS tr_favorites_count ON public.favorites;
+CREATE TRIGGER tr_favorites_count
+  AFTER INSERT OR DELETE ON public.favorites
+  FOR EACH ROW EXECUTE FUNCTION public.handle_favorites_count();
 
 -- ==============================================================================
 -- 8. ROW LEVEL SECURITY (RLS) POLICIES
@@ -350,3 +392,23 @@ BEGIN
   );
 END;
 $$;
+
+-- ==============================================================================
+-- 10. RLS POLICIES UNTUK TABEL FAVORITES
+-- ==============================================================================
+ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
+
+-- User hanya bisa melihat favorit miliknya sendiri
+CREATE POLICY "Users can view own favorites"
+  ON public.favorites FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- User login bisa menambahkan favorit
+CREATE POLICY "Authenticated users can insert favorites"
+  ON public.favorites FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- User hanya bisa menghapus favorit miliknya
+CREATE POLICY "Users can delete own favorites"
+  ON public.favorites FOR DELETE
+  USING (auth.uid() = user_id);

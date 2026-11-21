@@ -68,6 +68,7 @@ export interface Database {
           created_by: string | null
           status: PlaceStatus
           rejection_reason: string | null
+          favorites_count: number
           created_at: string
           updated_at: string
         }
@@ -182,6 +183,26 @@ export interface Database {
           comment?: string | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      favorites: {
+        Row: {
+          id: string
+          user_id: string
+          place_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          place_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          place_id?: string
+          created_at?: string
         }
       }
     }
