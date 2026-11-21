@@ -1045,27 +1045,38 @@ export const AdminPage: React.FC = () => {
                       className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EFE7DE] shadow-xs hover:shadow-sm transition-all space-y-3.5"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4EBE1] pb-3.5">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-[#2D231E]">{place.name}</h2>
-                            <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              ✓ Aktif Terbit
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#7A6B63] mt-1">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5 text-[#C86D51] shrink-0" />
-                              <span>
-                                {place.area} • {place.address}
+                        <div className="flex items-start gap-3.5">
+                          {getPlaceImageUrl(place) && (
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 border border-[#E8DFD3] shadow-2xs">
+                              <img
+                                src={getPlaceImageUrl(place)!}
+                                alt={place.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h2 className="text-lg font-black text-[#2D231E]">{place.name}</h2>
+                              <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                ✓ Aktif Terbit
                               </span>
                             </div>
-                            <span className="text-[#C5B7AA]">•</span>
-                            <div
-                              className="flex items-center gap-1 text-[11px] text-[#8C7A70]"
-                              title={place.created_at ? `Terbit sejak ${formatFullDate(place.created_at)}` : undefined}
-                            >
-                              <Calendar className="w-3 h-3 text-[#A8988C]" />
-                              <span>{formatAddedDate(place.created_at)}</span>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#7A6B63] mt-1">
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5 text-[#C86D51] shrink-0" />
+                                <span>
+                                  {place.area} • {place.address}
+                                </span>
+                              </div>
+                              <span className="text-[#C5B7AA]">•</span>
+                              <div
+                                className="flex items-center gap-1 text-[11px] text-[#8C7A70]"
+                                title={place.created_at ? `Terbit sejak ${formatFullDate(place.created_at)}` : undefined}
+                              >
+                                <Calendar className="w-3 h-3 text-[#A8988C]" />
+                                <span>{formatAddedDate(place.created_at)}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1374,6 +1385,28 @@ export const AdminPage: React.FC = () => {
                   onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
                   className="w-full p-2.5 rounded-xl border border-[#DFD3C3] bg-[#FAF7F2] text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
                 />
+              </div>
+
+              {/* Foto / Gambar Tempat */}
+              <div className="space-y-1">
+                <label className="font-bold text-[#4A3B32]">Link URL Foto Tempat (Opsional)</label>
+                <input
+                  type="text"
+                  value={editForm.image_url}
+                  onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                  placeholder="https://images.unsplash.com/... atau Data URL"
+                  className="w-full p-2.5 rounded-xl border border-[#DFD3C3] bg-[#FAF7F2] text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                />
+                {editForm.image_url && (
+                  <div className="mt-1 h-24 w-full rounded-xl overflow-hidden border border-[#E8DFD3]">
+                    <img
+                      src={editForm.image_url}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => (e.currentTarget.style.display = 'none')}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Kecepatan Wi-Fi & Colokan */}

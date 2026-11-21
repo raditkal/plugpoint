@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useFavorites } from '../context/FavoritesContext'
-import { getMyPlaces, getShortId, formatAddedDate, formatFullDate } from '../services/places'
+import { getMyPlaces, getShortId, formatAddedDate, formatFullDate, getPlaceImageUrl } from '../services/places'
 import PlaceCard from '../components/PlaceCard'
 import type { Place, PlaceStatus } from '../types/place'
 
@@ -286,11 +286,21 @@ export const MyPlacesPage: React.FC = () => {
                       className="bg-white rounded-3xl p-6 border border-[#EFE7DE] shadow-xs hover:shadow-sm transition-all space-y-4"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4EBE1] pb-4">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h2 className="text-lg font-black text-[#2D231E]">{place.name}</h2>
+                        <div className="flex items-start gap-3.5">
+                          {getPlaceImageUrl(place) && (
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 border border-[#E8DFD3] shadow-2xs">
+                              <img
+                                src={getPlaceImageUrl(place)!}
+                                alt={place.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h2 className="text-lg font-black text-[#2D231E]">{place.name}</h2>
 
-                            {/* Status Badges */}
+                              {/* Status Badges */}
                             {place.status === 'approved' && (
                               <span className="inline-flex items-center gap-1 text-[11px] font-extrabold px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                                 <CheckCircle className="w-3.5 h-3.5" />
@@ -337,6 +347,7 @@ export const MyPlacesPage: React.FC = () => {
                             </div>
                           </div>
                         </div>
+                      </div>
 
                         {place.status === 'approved' && (
                           <Link
