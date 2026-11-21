@@ -15,7 +15,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { createPlace } from '../services/places'
+import { createPlace, getShortId } from '../services/places'
 import type { OutletLevel, NoiseLevel, PlaceInsert } from '../types/place'
 
 export const AddPlacePage: React.FC = () => {
@@ -152,7 +152,7 @@ export const AddPlacePage: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
               {createdPlaceId && (isTrustedContributor || isAdmin) && (
                 <Link
-                  to={`/places/${createdPlaceId}`}
+                  to={`/places/${getShortId(createdPlaceId)}`}
                   className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold shadow-sm transition-all"
                 >
                   Lihat Halaman Tempat

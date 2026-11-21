@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Wifi, Clock, MapPin, ArrowRight, Heart } from 'lucide-react'
 import type { Place } from '../types/place'
+import { getShortId } from '../services/places'
 
 interface PlaceCardProps {
   place: Place
@@ -182,7 +183,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
             </button>
           ) : (
             <Link
-              to={`/places/${place.id}`}
+              to={`/places/${getShortId(place.id)}`}
               className="w-full bg-cafe-primary hover:bg-[#5C402D] active:scale-[0.98] text-white font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all group/btn cursor-pointer"
             >
               <span className="heading-font tracking-wide">Lihat Detail</span>

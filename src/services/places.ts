@@ -184,7 +184,42 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
 }
 
 /**
- * Mengambil detail satu tempat berdasarkan ID dari Supabase atau data fallback
+ * Mengubah UUID panjang menjadi short ID (8 karakter) yang ringkas dan ramah URL
+ */
+export function getShortId(id: string): string {
+  if (!id) return ''
+  return id.split('-')[0]
+}
+
+/**
+ * Mencari tempat di data fallback berdasarkan full UUID, short ID, angka urutan (1-5), atau nama
+ */
+function findFallbackPlace(identifier: string): Place | null {
+  const cleanId = identifier.trim().toLowerCase()
+
+  // Jika input angka sederhana (1-5), cocokkan dengan indeks dummy data
+  if (/^[1-9]$/.test(cleanId)) {
+    const idx = parseInt(cleanId, 10) - 1
+    if (DUMMY_PLACES[idx]) return DUMMY_PLACES[idx]
+  }
+
+  return (
+    DUMMY_PLACES.find((p) => {
+      const pid = p.id.toLowerCase()
+      const shortPid = pid.split('-')[0]
+      return (
+        pid === cleanId ||
+        shortPid === cleanId ||
+        pid.startsWith(cleanId) ||
+        p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanId)
+      )
+    }) || null
+  )
+}
+
+/**
+ * Mengambil detail satu tempat berdasarkan ID (bisa Full UUID, Short ID 8 karakter, atau angka)
+ * dari Supabase atau data fallback
  */
 export async function getPlaceById(id: string): Promise<{
   data: Place | null
@@ -192,44 +227,64 @@ export async function getPlaceById(id: string): Promise<{
   error: string | null
 }> {
   try {
-    const { data, error } = await supabase
-      .from('places')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle()
+    const cleanId = id.trim().toLowerCase()
+    const isFullUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
 
-    if (error) {
-      console.warn('Gagal mengambil detail dari Supabase, mencari di data fallback:', error.message)
-      const fallback = DUMMY_PLACES.find(p => p.id === id) || null
+    let query = supabase.from('places').select('*')
+
+    if (isFullUuid) {
+      query = query.eq('id', cleanId)
+    } else if (/^[0-9a-f]{4,12}$/i.test(cleanId)) {
+      // Range query untuk UUID prefix di PostgreSQL tanpa perlu cast text
+      const padZero = `${cleanId}${'0'.repeat(32 - cleanId.length)}`
+      const padF = `${cleanId}${'f'.repeat(32 - cleanId.length)}`
+      const minUuid = `${padZero.slice(0, 8)}-${padZero.slice(8, 12)}-${padZero.slice(12, 16)}-${padZero.slice(16, 20)}-${padZero.slice(20, 32)}`
+      const maxUuid = `${padF.slice(0, 8)}-${padF.slice(8, 12)}-${padF.slice(12, 16)}-${padF.slice(16, 20)}-${padF.slice(20, 32)}`
+      query = query.gte('id', minUuid).lte('id', maxUuid)
+    } else {
+      // Jika bukan format UUID/Hex (misal angka "1" atau slug), langsung cari di fallback
+      const fallback = findFallbackPlace(cleanId)
       return {
         data: fallback,
         isUsingFallback: true,
-        error: error.message
+        error: null,
+      }
+    }
+
+    const { data, error } = await query.maybeSingle()
+
+    if (error) {
+      console.warn('Gagal mengambil detail dari Supabase, mencari di fallback:', error.message)
+      const fallback = findFallbackPlace(cleanId)
+      return {
+        data: fallback,
+        isUsingFallback: true,
+        error: error.message,
       }
     }
 
     if (!data) {
       // Cari di data fallback jika tidak ditemukan di DB
-      const fallback = DUMMY_PLACES.find(p => p.id === id) || null
+      const fallback = findFallbackPlace(cleanId)
       return {
         data: fallback,
         isUsingFallback: true,
-        error: null
+        error: null,
       }
     }
 
     return {
       data,
       isUsingFallback: false,
-      error: null
+      error: null,
     }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Unknown error'
-    const fallback = DUMMY_PLACES.find(p => p.id === id) || null
+    const fallback = findFallbackPlace(id)
     return {
       data: fallback,
       isUsingFallback: true,
-      error: errorMsg
+      error: errorMsg,
     }
   }
 }
