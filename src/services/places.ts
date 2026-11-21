@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import type { Place, PlaceInsert, PlaceFilterOptions, PlaceReview } from '../types/place'
+import type { Place, PlaceInsert, PlaceFilterOptions, PlaceReview, ReportReason } from '../types/place'
 
 // Daftar Area Khusus Indralaya (Ogan Ilir)
 export const INDRALAYA_AREAS = [
@@ -41,18 +41,6 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
       query = query.or(`name.ilike.${q},area.ilike.${q},address.ilike.${q}`)
     }
 
-    if (options.fastWifiOnly) {
-      query = query.gte('wifi_rating', 4)
-    }
-
-    if (options.manyOutletsOnly) {
-      query = query.eq('outlet_level', 'many')
-    }
-
-    if (options.quietOnly) {
-      query = query.eq('noise_level', 'quiet')
-    }
-
     const { data, error } = await query
 
     if (error) {
@@ -73,10 +61,23 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
       }
     }
 
+    const sortBy = options.sortBy || 'most_popular'
     const sortedData = [...(data as Place[])]
-    if (options.sortBy === 'most_popular') {
-      sortedData.sort((a, b) => (b.favorites_count || 0) - (a.favorites_count || 0))
+    if (sortBy === 'most_popular') {
+      sortedData.sort((a, b) => {
+        const favDiff = (b.favorites_count || 0) - (a.favorites_count || 0)
+        if (favDiff !== 0) return favDiff
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
+    } else if (sortBy === 'fastest_wifi') {
+      sortedData.sort((a, b) => {
+        const speedA = a.wifi_speed_mbps || (a.wifi_rating ? a.wifi_rating * 15 : 0)
+        const speedB = b.wifi_speed_mbps || (b.wifi_rating ? b.wifi_rating * 15 : 0)
+        if (speedB !== speedA) return speedB - speedA
+        return (b.wifi_rating || 0) - (a.wifi_rating || 0)
+      })
     } else {
+      // 'newest'
       sortedData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     }
 
@@ -453,6 +454,23 @@ export async function getPlaceById(id: string): Promise<{
 }
 
 /**
+ * Mengambil URL gambar tempat dari kolom image_url atau fallback dari JSON opening_hours
+ */
+export function getPlaceImageUrl(place?: { image_url?: string | null; opening_hours?: any } | null): string | null {
+  if (!place) return null
+  if (place.image_url && typeof place.image_url === 'string' && place.image_url.trim()) {
+    return place.image_url.trim()
+  }
+  if (place.opening_hours && typeof place.opening_hours === 'object') {
+    const hours = place.opening_hours as Record<string, any>
+    if (hours.image_url && typeof hours.image_url === 'string' && hours.image_url.trim()) {
+      return hours.image_url.trim()
+    }
+  }
+  return null
+}
+
+/**
  * Mengajukan / menambahkan tempat baru ke database Supabase
  */
 export async function createPlace(placeData: PlaceInsert): Promise<{
@@ -460,17 +478,34 @@ export async function createPlace(placeData: PlaceInsert): Promise<{
   error: string | null
 }> {
   try {
+    // Amankan penyimpanan gambar: simpan juga di dalam JSON opening_hours
+    // agar foto tetap tersimpan meskipun database Supabase belum memiliki kolom image_url terpisah
+    const rawImage = placeData.image_url && typeof placeData.image_url === 'string' ? placeData.image_url.trim() : null
+    const existingHours = typeof placeData.opening_hours === 'object' && placeData.opening_hours !== null
+      ? placeData.opening_hours
+      : {}
+    const openingHoursWithImage = rawImage
+      ? { ...existingHours, image_url: rawImage }
+      : existingHours
+
+    const payloadWithBackup = {
+      ...placeData,
+      image_url: rawImage,
+      opening_hours: openingHoursWithImage,
+    }
+
     let { data, error } = await supabase
       .from('places')
-      .insert(placeData as any)
+      .insert(payloadWithBackup as any)
       .select()
       .single()
 
-    // Jika kolom image_url belum dibuat di Supabase, coba simpan ulang tanpa field image_url
+    // Jika kolom image_url belum dibuat di Supabase, coba simpan ulang tanpa kolom image_url level atas
+    // (Foto tetap aman tersimpan di dalam opening_hours.image_url)
     if (error && error.message.toLowerCase().includes('image_url')) {
-      console.warn('Kolom image_url belum ada di Supabase, menyimpan tanpa field image_url...')
+      console.warn('Kolom image_url belum ada di Supabase, menyimpan foto di dalam opening_hours JSONB...')
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { image_url, ...restData } = placeData as any
+      const { image_url, ...restData } = payloadWithBackup as any
       const retry = await supabase
         .from('places')
         .insert(restData)
@@ -593,5 +628,39 @@ export async function createPlaceReview(reviewData: {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem'
     return { data: null, error: msg }
+  }
+}
+
+/**
+ * Mengirim laporan masalah suatu tempat dari pengunjung ke database Supabase
+ */
+export async function submitReport(reportData: {
+  placeId: string
+  reason: ReportReason
+  description?: string
+}): Promise<{ success: boolean; error: string | null }> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    const reporterId = session?.user?.id || null
+
+    const { error } = await (supabase
+      .from('reports') as any)
+      .insert({
+        place_id: reportData.placeId,
+        reporter_id: reporterId,
+        reason: reportData.reason,
+        description: reportData.description?.trim() || null,
+        status: 'open',
+      })
+
+    if (error) {
+      console.warn('Gagal menyimpan laporan ke Supabase:', error.message)
+      return { success: false, error: error.message }
+    }
+
+    return { success: true, error: null }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem'
+    return { success: false, error: errorMsg }
   }
 }

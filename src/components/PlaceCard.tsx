@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Wifi, Clock, MapPin, ArrowRight, Heart, Calendar } from 'lucide-react'
 import type { Place } from '../types/place'
-import { getShortId, formatAddedDate, formatFullDate } from '../services/places'
+import { getShortId, formatAddedDate, formatFullDate, getPlaceImageUrl } from '../services/places'
 import { useFavorites } from '../context/FavoritesContext'
 
 interface PlaceCardProps {
@@ -27,7 +27,8 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
 
   // Dapatkan URL gambar berdasarkan place atau fallback variatif
   const getImageSource = () => {
-    if (place.image_url) return place.image_url
+    const customImg = getPlaceImageUrl(place)
+    if (customImg) return customImg
 
     // Hash nama tempat untuk memilih gambar cafe konsisten
     const hash = (place.id || place.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -44,34 +45,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
     return 'Buka Setiap Hari'
   }
 
-  // Generate tags lucu & relevan
-  const getTags = () => {
-    const tags: string[] = ['#WorkFromCafe']
-
-    if (place.outlet_level === 'many') {
-      tags.push('#PowerOutlets')
-    } else if (place.outlet_level === 'few') {
-      tags.push('#ColokanTersedia')
-    }
-
-    if (place.noise_level === 'quiet') {
-      tags.push('#SunyiTenang')
-    } else if (place.noise_level === 'moderate') {
-      tags.push('#CozyVibes')
-    }
-
-    if (place.area) {
-      const cleanArea = place.area.split(',')[0].replace(/\s+/g, '')
-      tags.push(`#${cleanArea}`)
-    } else {
-      tags.push('#IndoorAC')
-    }
-
-    return tags.slice(0, 4)
-  }
-
   const closingHour = extractClosingHour()
-  const tags = getTags()
   const displayWifi = place.wifi_speed_mbps
     ? `${place.wifi_speed_mbps} Mbps`
     : place.wifi_rating
@@ -159,18 +133,6 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
                 place.outlet_level === 'many' ? 'melimpah' : 'tersedia'
               }, serta racikan kopi nikmat! ☕✨`}
           </p>
-
-          {/* Tags Section */}
-          <div className="flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-[#F8F1E9] text-cafe-primary text-[11px] font-bold px-2.5 py-1 rounded-xl border border-[#EEE2D5] hover:bg-[#EFE3D5] transition-colors cursor-pointer"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
 
           {/* Kontributor Info & Tanggal Ditambahkan */}
           <div className="flex items-center justify-between text-[11px] text-[#7A6B63] pt-1 gap-2">

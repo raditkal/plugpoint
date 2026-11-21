@@ -12,7 +12,7 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
   const [places, setPlaces] = useState<Place[]>([])
-  const [filterOptions, setFilterOptions] = useState<PlaceFilterOptions>({})
+  const [filterOptions, setFilterOptions] = useState<PlaceFilterOptions>({ sortBy: 'most_popular' })
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const fetchPlaces = async (options: PlaceFilterOptions) => {
@@ -31,10 +31,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
       {/* HERO SECTION - Warm, Aesthetic, Playful Cafe Vibe */}
       <section className="relative overflow-hidden pt-8 pb-12 sm:pt-16 sm:pb-20 border-b border-[#EFE7DE]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#FAF0E6] border border-[#ECD9C9] text-[11px] sm:text-xs font-bold text-[#8C5E48] mx-auto shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#C86D51] animate-pulse"></span>
-            <span>Direktori Spot Nugas & Kafe Indralaya (Sekitar UNSRI)</span>
-          </div>
 
           {/* Calming Warm Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#2D231E] max-w-2xl mx-auto leading-tight">
@@ -130,24 +126,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
 
               {Boolean(
                 (filterOptions.searchQuery && filterOptions.searchQuery.trim()) ||
-                filterOptions.fastWifiOnly ||
-                filterOptions.manyOutletsOnly ||
-                filterOptions.quietOnly ||
-                (filterOptions.sortBy && filterOptions.sortBy !== 'newest')
+                (filterOptions.sortBy && filterOptions.sortBy !== 'most_popular')
               ) ? (
                 <>
                   <h3 className="text-lg font-bold text-[#2D231E]">
                     Belum ada tempat yang cocok nih~
                   </h3>
                   <p className="text-xs sm:text-sm text-[#7A6B63] max-w-sm mx-auto">
-                    Coba kurangi filter atau ganti kata kunci pencarian kamu ya!
+                    Coba ganti filter atau kata kunci pencarian kamu ya!
                   </p>
                   <button
                     type="button"
-                    onClick={() => setFilterOptions({})}
+                    onClick={() => setFilterOptions({ sortBy: 'most_popular' })}
                     className="mt-2 inline-flex items-center px-4 py-2 text-xs font-bold text-[#C86D51] bg-[#FAF2EB] rounded-full hover:bg-[#F3E2D5] transition-colors border border-[#F0D5C3] cursor-pointer"
                   >
-                    Reset Semua Filter
+                    Reset Filter
                   </button>
                 </>
               ) : (

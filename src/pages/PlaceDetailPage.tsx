@@ -17,12 +17,13 @@ import {
   Share2,
   Check,
   Star,
-  Send
+  Send,
+  Loader2
 } from 'lucide-react'
-import { getPlaceById, formatAddedDate, formatFullDate, getPlaceReviews, createPlaceReview } from '../services/places'
+import { getPlaceById, formatAddedDate, formatFullDate, getPlaceReviews, createPlaceReview, submitReport, getPlaceImageUrl } from '../services/places'
 import { useFavorites } from '../context/FavoritesContext'
 import { useAuth } from '../context/AuthContext'
-import type { Place, PlaceReview } from '../types/place'
+import type { Place, PlaceReview, ReportReason } from '../types/place'
 
 // Fallback images cafe aesthetic
 const DETAIL_IMAGES = [
@@ -40,6 +41,10 @@ export const PlaceDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [reportSubmitted, setReportSubmitted] = useState(false)
+  const [reportReason, setReportReason] = useState<ReportReason>('inaccurate_wifi')
+  const [reportDescription, setReportDescription] = useState<string>('')
+  const [isSubmittingReport, setIsSubmittingReport] = useState<boolean>(false)
+  const [reportError, setReportError] = useState<string | null>(null)
 
   // Reviews State
   const [reviews, setReviews] = useState<PlaceReview[]>([])
@@ -94,6 +99,28 @@ export const PlaceDetailPage: React.FC = () => {
     setIsSubmittingReview(false)
   }
 
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!place) return
+
+    setIsSubmittingReport(true)
+    setReportError(null)
+
+    const res = await submitReport({
+      placeId: place.id,
+      reason: reportReason,
+      description: reportDescription,
+    })
+
+    setIsSubmittingReport(false)
+    if (res.success) {
+      setReportSubmitted(true)
+      setReportDescription('')
+    } else {
+      setReportError(res.error || 'Gagal mengirim laporan. Silakan coba lagi.')
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#FAF6F0] flex items-center justify-center p-6">
@@ -132,7 +159,7 @@ export const PlaceDetailPage: React.FC = () => {
 
   // Pilih gambar berdasarkan data tempat atau fallback estetik
   const hash = (place.id || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
-  const heroImage = place.image_url || DETAIL_IMAGES[Math.abs(hash) % DETAIL_IMAGES.length]
+  const heroImage = getPlaceImageUrl(place) || DETAIL_IMAGES[Math.abs(hash) % DETAIL_IMAGES.length]
 
   // Parsing opening hours
   const hours = place.opening_hours as { daily?: { open?: string; close?: string } } | null
@@ -308,32 +335,6 @@ export const PlaceDetailPage: React.FC = () => {
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Checklist Fasilitas Kerja */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-4">
-              <h2 className="text-lg font-black text-[#2D231E] flex items-center gap-2">
-                <span>✨</span>
-                <span>Fasilitas Terverifikasi</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#5C4D45]">
-                <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FBF8F4] border border-[#F0E6D8]">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Wi-Fi {place.wifi_speed_mbps ? `${place.wifi_speed_mbps} Mbps` : 'Tersedia'}</span>
-                </div>
-                <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FBF8F4] border border-[#F0E6D8]">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Stopkontak {place.outlet_level === 'many' ? 'Hampir di setiap meja' : 'Tersedia di beberapa titik'}</span>
-                </div>
-                <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FBF8F4] border border-[#F0E6D8]">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Area Meja Laptop Friendly</span>
-                </div>
-                <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#FBF8F4] border border-[#F0E6D8]">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Ruang Ber-AC & Dingin Nyaman</span>
-                </div>
-              </div>
             </div>
 
             {/* Ulasan & Rating Komunitas */}
@@ -562,9 +563,9 @@ export const PlaceDetailPage: React.FC = () => {
                 <div className="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm font-bold text-[#2D231E]">Laporan Terkirim!</h4>
+                <h4 className="text-sm font-bold text-[#2D231E]">Laporan Berhasil Terkirim!</h4>
                 <p className="text-xs text-[#7A6B63]">
-                  Terima kasih banyak! Tim moderator Plugpoint akan memeriksa laporanmu.
+                  Terima kasih banyak! Tim moderator Plugpoint telah menerima laporanmu dan akan segera meninjaunya.
                 </p>
                 <button
                   type="button"
@@ -572,42 +573,57 @@ export const PlaceDetailPage: React.FC = () => {
                     setReportModalOpen(false)
                     setReportSubmitted(false)
                   }}
-                  className="mt-2 py-2 px-6 rounded-full bg-[#382E2B] text-white text-xs font-bold"
+                  className="mt-2 py-2 px-6 rounded-full bg-[#382E2B] hover:bg-[#201815] text-white text-xs font-bold transition-all cursor-pointer"
                 >
                   Selesai
                 </button>
               </div>
             ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  setReportSubmitted(true)
-                }}
-                className="space-y-3"
-              >
+              <form onSubmit={handleReportSubmit} className="space-y-3">
+                {reportError && (
+                  <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+                    {reportError}
+                  </div>
+                )}
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[#4A3B32]">Alasan Pelaporan</label>
-                  <select className="w-full text-xs p-3 rounded-2xl border border-[#DFD3C3] bg-[#FAF7F2] text-[#382E2B] focus:outline-none focus:border-[#C86D51]">
-                    <option value="inaccurate_wifi">Wi-Fi lambat atau tidak berfungsi</option>
-                    <option value="inaccurate_outlets">Colokan listrik tidak tersedia / minim</option>
-                    <option value="permanently_closed">Tempat sudah tutup permanen</option>
-                    <option value="wrong_location">Alamat atau titik lokasi salah</option>
-                    <option value="other">Lainnya</option>
+                  <select
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value as ReportReason)}
+                    className="w-full text-xs p-3 rounded-2xl border border-[#DFD3C3] bg-[#FAF7F2] text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                  >
+                    <option value="inaccurate_wifi">📶 Wi-Fi lambat atau tidak berfungsi</option>
+                    <option value="inaccurate_outlets">🔌 Colokan listrik tidak tersedia / minim</option>
+                    <option value="permanently_closed">🔒 Tempat sudah tutup permanen</option>
+                    <option value="wrong_location">📍 Alamat atau titik lokasi salah</option>
+                    <option value="duplicate_place">👥 Tempat duplikat</option>
+                    <option value="inappropriate_content">🚫 Informasi / foto tidak pantas</option>
+                    <option value="other">⚠️ Lainnya (Jam operasional, fasilitas, dll)</option>
                   </select>
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[#4A3B32]">Catatan Tambahan (Opsional)</label>
                   <textarea
                     rows={3}
+                    value={reportDescription}
+                    onChange={(e) => setReportDescription(e.target.value)}
                     placeholder="Contoh: Sekarang stopkontak hanya ada di smoking area..."
                     className="w-full text-xs p-3 rounded-2xl border border-[#DFD3C3] bg-[#FAF7F2] text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold shadow-sm transition-colors"
+                  disabled={isSubmittingReport}
+                  className="w-full py-3 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold shadow-sm transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Kirim Laporan
+                  {isSubmittingReport ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Mengirim Laporan...</span>
+                    </>
+                  ) : (
+                    <span>Kirim Laporan</span>
+                  )}
                 </button>
               </form>
             )}

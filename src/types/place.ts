@@ -33,11 +33,7 @@ export type WeekSchedule = {
 
 export interface PlaceFilterOptions {
   searchQuery?: string
-  fastWifiOnly?: boolean // wifi_rating >= 4
-  manyOutletsOnly?: boolean // outlet_level === 'many'
-  quietOnly?: boolean // noise_level === 'quiet'
-  openLateOnly?: boolean // buka melewati jam 21:00
-  sortBy?: 'newest' | 'most_popular' // Urutan: Terbaru vs Terpopuler
+  sortBy?: 'most_popular' | 'newest' | 'fastest_wifi'
 }
 
 export type { OutletLevel, NoiseLevel, PlaceStatus, ReportStatus, ReportReason }
