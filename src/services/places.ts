@@ -1,129 +1,24 @@
 import { supabase } from '../lib/supabase'
-import type { Place, PlaceInsert, PlaceFilterOptions } from '../types/place'
+import type { Place, PlaceInsert, PlaceFilterOptions, PlaceReview } from '../types/place'
 
-// Data fallback/dummy realistis jika database Supabase belum diisi tempat
-export const DUMMY_PLACES: Place[] = [
-  {
-    id: '11111111-1111-1111-1111-111111111111',
-    name: 'Ruang Seduh & Kerja',
-    address: 'Jl. Dipati Ukur No. 45, Lebakgede',
-    area: 'Bandung',
-    latitude: -6.8925,
-    longitude: 107.6186,
-    wifi_rating: 5,
-    wifi_speed_mbps: 85,
-    outlet_level: 'many',
-    noise_level: 'quiet',
-    opening_hours: {
-      daily: { open: '08:00', close: '23:00', is_closed: false }
-    },
-    quiet_hours: '08:00 - 14:00',
-    notes: 'Colokan di hampir setiap meja, kursi ergonomis, dan playlist lofi tenang.',
-    favorites_count: 54,
-    created_by: null,
-    profiles: { display_name: 'Sarah Amalia', contributor_status: 'trusted' },
-    status: 'approved',
-    rejection_reason: null,
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-    updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: '22222222-2222-2222-2222-222222222222',
-    name: 'Kolektif Coworking Space',
-    address: 'Jl. Wolter Monginsidi No. 12, Kebayoran Baru',
-    area: 'Jakarta Selatan',
-    latitude: -6.2382,
-    longitude: 106.8124,
-    wifi_rating: 5,
-    wifi_speed_mbps: 120,
-    outlet_level: 'many',
-    noise_level: 'quiet',
-    opening_hours: {
-      daily: { open: '07:30', close: '22:00', is_closed: false }
-    },
-    quiet_hours: 'Sepanjang hari',
-    notes: 'Ada bilik telepon peredam suara untuk meeting online dan free flow kopi.',
-    favorites_count: 89,
-    created_by: null,
-    profiles: { display_name: 'Dimas Aditya', contributor_status: 'unverified' },
-    status: 'approved',
-    rejection_reason: null,
-    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-    updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-  {
-    id: '33333333-3333-3333-3333-333333333333',
-    name: 'Kopi Titik Koma Dago',
-    address: 'Jl. Ir. H. Juanda No. 120, Dago',
-    area: 'Bandung',
-    latitude: -6.8856,
-    longitude: 107.6143,
-    wifi_rating: 4,
-    wifi_speed_mbps: 45,
-    outlet_level: 'many',
-    noise_level: 'moderate',
-    opening_hours: {
-      daily: { open: '09:00', close: '23:30', is_closed: false }
-    },
-    quiet_hours: '09:00 - 12:00',
-    notes: 'Lantai 2 khusus area laptop. Suasana ramai santai saat sore hari.',
-    favorites_count: 36,
-    created_by: null,
-    profiles: { display_name: 'Rian Pratama', contributor_status: 'trusted' },
-    status: 'approved',
-    rejection_reason: null,
-    created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
-    updated_at: new Date(Date.now() - 86400000 * 10).toISOString(),
-  },
-  {
-    id: '44444444-4444-4444-4444-444444444444',
-    name: 'Selasar Pustaka & Cafe',
-    address: 'Jl. Kaliurang KM 5.5, Depok',
-    area: 'Sleman, Yogyakarta',
-    latitude: -7.7612,
-    longitude: 110.3811,
-    wifi_rating: 4,
-    wifi_speed_mbps: 50,
-    outlet_level: 'few',
-    noise_level: 'quiet',
-    opening_hours: {
-      daily: { open: '10:00', close: '24:00', is_closed: false }
-    },
-    quiet_hours: '13:00 - 18:00',
-    notes: 'Suasana sangat sunyi cocok untuk skripsi/membaca. Colokan terbatas di area dinding.',
-    favorites_count: 72,
-    created_by: null,
-    profiles: { display_name: 'Nadia Putri', contributor_status: 'unverified' },
-    status: 'approved',
-    rejection_reason: null,
-    created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
-    updated_at: new Date(Date.now() - 86400000 * 15).toISOString(),
-  },
-  {
-    id: '55555555-5555-5555-5555-555555555555',
-    name: 'Midnight Study Hub',
-    address: 'Jl. Gejayan No. 8, Condongcatur',
-    area: 'Yogyakarta',
-    latitude: -7.7712,
-    longitude: 110.3905,
-    wifi_rating: 4,
-    wifi_speed_mbps: 60,
-    outlet_level: 'many',
-    noise_level: 'quiet',
-    opening_hours: {
-      daily: { open: '10:00', close: '03:00', is_closed: false }
-    },
-    quiet_hours: '21:00 - 03:00',
-    notes: 'Buka sampai dini hari jam 03.00, colokan per orang ada 2 lubang.',
-    favorites_count: 45,
-    created_by: null,
-    profiles: { display_name: 'Budi Santoso', contributor_status: 'trusted' },
-    status: 'approved',
-    rejection_reason: null,
-    created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
-    updated_at: new Date(Date.now() - 86400000 * 20).toISOString(),
-  },
-]
+// Daftar Area Khusus Indralaya (Ogan Ilir)
+export const INDRALAYA_AREAS = [
+  'Simpang Timbangan (KM 32)',
+  'Gang Lampung & Sekitarnya',
+  'Tanjung Sejaro',
+  'Palem Raya',
+  'Sakatiga',
+  'Indralaya Raya',
+  'Indralaya Indah',
+  'Indralaya Mulya',
+  'Tanjung Senai',
+  'Arah Palembang (KM 32 – KM 35)',
+] as const
+
+export type IndralayaArea = typeof INDRALAYA_AREAS[number]
+
+// Tidak ada data dummy (hanya data asli database)
+export const DUMMY_PLACES: Place[] = []
 
 /**
  * Mengambil daftar tempat kerja yang disetujui dari database Supabase
@@ -161,19 +56,19 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
     const { data, error } = await query
 
     if (error) {
-      console.warn('Gagal mengambil data dari Supabase, beralih ke data fallback:', error.message)
+      console.warn('Gagal mengambil data dari Supabase:', error.message)
       return {
-        data: applyClientFilter(DUMMY_PLACES, options),
-        isUsingFallback: true,
+        data: [],
+        isUsingFallback: false,
         error: error.message
       }
     }
 
-    // Jika Supabase terhubung tapi tabel places masih kosong, gunakan dummy data sementara
+    // Jika Supabase terhubung tapi belum ada tempat terdaftar
     if (!data || data.length === 0) {
       return {
-        data: applyClientFilter(DUMMY_PLACES, options),
-        isUsingFallback: true,
+        data: [],
+        isUsingFallback: false,
         error: null
       }
     }
@@ -193,8 +88,8 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Unknown error'
     return {
-      data: applyClientFilter(DUMMY_PLACES, options),
-      isUsingFallback: true,
+      data: [],
+      isUsingFallback: false,
       error: errorMsg
     }
   }
@@ -492,34 +387,8 @@ export function findSimilarPlace(
 }
 
 /**
- * Mencari tempat di data fallback berdasarkan full UUID, short ID, angka urutan (1-5), atau nama
- */
-function findFallbackPlace(identifier: string): Place | null {
-  const cleanId = identifier.trim().toLowerCase()
-
-  // Jika input angka sederhana (1-5), cocokkan dengan indeks dummy data
-  if (/^[1-9]$/.test(cleanId)) {
-    const idx = parseInt(cleanId, 10) - 1
-    if (DUMMY_PLACES[idx]) return DUMMY_PLACES[idx]
-  }
-
-  return (
-    DUMMY_PLACES.find((p) => {
-      const pid = p.id.toLowerCase()
-      const shortPid = pid.split('-')[0]
-      return (
-        pid === cleanId ||
-        shortPid === cleanId ||
-        pid.startsWith(cleanId) ||
-        p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanId)
-      )
-    }) || null
-  )
-}
-
-/**
- * Mengambil detail satu tempat berdasarkan ID (bisa Full UUID, Short ID 8 karakter, atau angka)
- * dari Supabase atau data fallback
+ * Mengambil detail satu tempat berdasarkan ID (bisa Full UUID atau Short ID 8 karakter)
+ * dari Supabase
  */
 export async function getPlaceById(id: string): Promise<{
   data: Place | null
@@ -542,33 +411,28 @@ export async function getPlaceById(id: string): Promise<{
       const maxUuid = `${padF.slice(0, 8)}-${padF.slice(8, 12)}-${padF.slice(12, 16)}-${padF.slice(16, 20)}-${padF.slice(20, 32)}`
       query = query.gte('id', minUuid).lte('id', maxUuid)
     } else {
-      // Jika bukan format UUID/Hex (misal angka "1" atau slug), langsung cari di fallback
-      const fallback = findFallbackPlace(cleanId)
       return {
-        data: fallback,
-        isUsingFallback: true,
-        error: null,
+        data: null,
+        isUsingFallback: false,
+        error: 'ID tempat tidak ditemukan',
       }
     }
 
     const { data, error } = await query.maybeSingle()
 
     if (error) {
-      console.warn('Gagal mengambil detail dari Supabase, mencari di fallback:', error.message)
-      const fallback = findFallbackPlace(cleanId)
+      console.warn('Gagal mengambil detail dari Supabase:', error.message)
       return {
-        data: fallback,
-        isUsingFallback: true,
+        data: null,
+        isUsingFallback: false,
         error: error.message,
       }
     }
 
     if (!data) {
-      // Cari di data fallback jika tidak ditemukan di DB
-      const fallback = findFallbackPlace(cleanId)
       return {
-        data: fallback,
-        isUsingFallback: true,
+        data: null,
+        isUsingFallback: false,
         error: null,
       }
     }
@@ -580,63 +444,12 @@ export async function getPlaceById(id: string): Promise<{
     }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Unknown error'
-    const fallback = findFallbackPlace(id)
     return {
-      data: fallback,
-      isUsingFallback: true,
+      data: null,
+      isUsingFallback: false,
       error: errorMsg,
     }
   }
-}
-
-/**
- * Filter lokal untuk data fallback jika database belum berisi data
- */
-function applyClientFilter(places: Place[], options: PlaceFilterOptions): Place[] {
-  let result = [...places]
-
-  if (options.searchQuery && options.searchQuery.trim() !== '') {
-    const q = options.searchQuery.toLowerCase()
-    result = result.filter(
-      p =>
-        p.name.toLowerCase().includes(q) ||
-        p.area.toLowerCase().includes(q) ||
-        p.address.toLowerCase().includes(q)
-    )
-  }
-
-  if (options.fastWifiOnly) {
-    result = result.filter(p => (p.wifi_rating ?? 0) >= 4)
-  }
-
-  if (options.manyOutletsOnly) {
-    result = result.filter(p => p.outlet_level === 'many')
-  }
-
-  if (options.quietOnly) {
-    result = result.filter(p => p.noise_level === 'quiet')
-  }
-
-  if (options.openLateOnly) {
-    result = result.filter(p => {
-      // Periksa jam tutup > 21:00 atau jam dini hari (00:00 - 05:00)
-      const hours = p.opening_hours as { daily?: { close?: string } } | null
-      const close = hours?.daily?.close
-      if (!close) return false
-      const [hour] = close.split(':').map(Number)
-      return hour >= 21 || hour <= 4
-    })
-  }
-
-  // Urutkan berdasarkan opsi: 'most_popular' atau 'newest'
-  if (options.sortBy === 'most_popular') {
-    result.sort((a, b) => (b.favorites_count || 0) - (a.favorites_count || 0))
-  } else {
-    // Default terbaru
-    result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-  }
-
-  return result
 }
 
 /**
@@ -702,5 +515,83 @@ export async function getMyPlaces(userId: string): Promise<{
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem'
     return { data: [], error: errorMsg }
+  }
+}
+
+// Penyimpanan ulasan lokal jika koneksi Supabase offline
+const DUMMY_REVIEWS: Record<string, PlaceReview[]> = {}
+
+/**
+ * Mengambil ulasan pengunjung untuk suatu tempat
+ */
+export async function getPlaceReviews(placeId: string): Promise<{
+  data: PlaceReview[]
+  error: string | null
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('place_reviews')
+      .select('*, profiles:user_id(id, display_name)')
+      .eq('place_id', placeId)
+      .order('created_at', { ascending: false })
+
+    if (error || !data || data.length === 0) {
+      const fallback = DUMMY_REVIEWS[placeId] || []
+      return { data: fallback, error: null }
+    }
+
+    return { data: data as PlaceReview[], error: null }
+  } catch {
+    const fallback = DUMMY_REVIEWS[placeId] || []
+    return { data: fallback, error: null }
+  }
+}
+
+/**
+ * Mengirim ulasan baru untuk tempat
+ */
+export async function createPlaceReview(reviewData: {
+  place_id: string
+  user_id: string
+  wifi_rating: number
+  outlet_rating?: number
+  noise_rating?: number
+  comment?: string
+}): Promise<{
+  data: PlaceReview | null
+  error: string | null
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('place_reviews')
+      .upsert(reviewData as any, { onConflict: 'place_id,user_id' })
+      .select('*, profiles:user_id(id, display_name)')
+      .single()
+
+    if (error) {
+      console.warn('Gagal menyimpan ulasan ke Supabase:', error.message)
+      const newReview: PlaceReview = {
+        id: `local-rev-${Date.now()}`,
+        place_id: reviewData.place_id,
+        user_id: reviewData.user_id,
+        wifi_rating: reviewData.wifi_rating,
+        outlet_rating: reviewData.outlet_rating ?? 5,
+        noise_rating: reviewData.noise_rating ?? 5,
+        comment: reviewData.comment ?? null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        profiles: { display_name: 'Anda' },
+      }
+      if (!DUMMY_REVIEWS[reviewData.place_id]) {
+        DUMMY_REVIEWS[reviewData.place_id] = []
+      }
+      DUMMY_REVIEWS[reviewData.place_id].unshift(newReview)
+      return { data: newReview, error: null }
+    }
+
+    return { data: data as PlaceReview, error: null }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem'
+    return { data: null, error: msg }
   }
 }

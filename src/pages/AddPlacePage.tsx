@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -18,10 +18,12 @@ import {
   Image as ImageIcon,
   Upload,
   ExternalLink,
-  X
+  X,
+  ChevronDown,
+  Check
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { createPlace, getShortId, getPlaces, findSimilarPlace, type SimilarPlaceMatch } from '../services/places'
+import { createPlace, getShortId, getPlaces, findSimilarPlace, INDRALAYA_AREAS, type SimilarPlaceMatch } from '../services/places'
 import type { OutletLevel, NoiseLevel, PlaceInsert, Place } from '../types/place'
 
 // Pilihan cepat foto kafe aesthetic
@@ -70,6 +72,22 @@ export const AddPlacePage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [createdPlaceId, setCreatedPlaceId] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
+
+  // Area Dropdown State
+  const [isAreaDropdownOpen, setIsAreaDropdownOpen] = useState(false)
+  const areaDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (areaDropdownRef.current && !areaDropdownRef.current.contains(event.target as Node)) {
+        setIsAreaDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   // Duplicate Detection State
   const [existingPlaces, setExistingPlaces] = useState<Place[]>([])
@@ -312,7 +330,7 @@ export const AddPlacePage: React.FC = () => {
                       }
                     }}
                     onBlur={handleNameBlur}
-                    placeholder="Contoh: Titik Koma Dago, Ruang Seduh & Kerja"
+                    placeholder="Contoh: Kopi Kenangan, Rocket Chicken"
                     className="w-full px-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                   />
 
@@ -324,7 +342,7 @@ export const AddPlacePage: React.FC = () => {
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-bold text-amber-950 flex items-center gap-1.5">
-                              <span>⚠️ Potensi Duplikat Terdeteksi</span>
+                              <span>⚠️ Tempat ini sepertinya sudah ada</span>
                               <span className="text-[10px] bg-amber-200/90 text-amber-950 px-2 py-0.5 rounded-full font-extrabold">
                                 {duplicateWarning.similarityPercent}% Mirip
                               </span>
@@ -366,18 +384,111 @@ export const AddPlacePage: React.FC = () => {
                   )}
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-[#4A3B32]">
-                    Area / Kota <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    placeholder="Contoh: Bandung, Jakarta Selatan, Sleman"
-                    className="w-full px-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
-                  />
+                {/* AREA DROPDOWN + CUSTOM INPUT */}
+                <div className="space-y-1.5 sm:col-span-2 relative" ref={areaDropdownRef}>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-[#4A3B32]">
+                      Area / Wilayah di Indralaya <span className="text-rose-500">*</span>
+                    </label>
+                    <span className="text-[11px] text-[#A6978C]">
+                      Pilih opsi dropdown atau ketik nama area
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      value={area}
+                      onChange={(e) => {
+                        setArea(e.target.value)
+                        setIsAreaDropdownOpen(true)
+                      }}
+                      onFocus={() => setIsAreaDropdownOpen(true)}
+                      placeholder="Pilih dropdown atau ketik area (misal: Simpang Timbangan, Gang Lampung)"
+                      className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsAreaDropdownOpen((prev) => !prev)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#8C6D58] hover:text-[#382E2B] rounded-lg transition-colors cursor-pointer"
+                      title="Buka pilihan area Indralaya"
+                    >
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform duration-200 ${
+                          isAreaDropdownOpen ? 'rotate-180 text-[#C86D51]' : ''
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Dropdown Floating Menu */}
+                  {isAreaDropdownOpen && (
+                    <div className="absolute z-20 left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-2xl bg-white border border-[#E8DFD3] shadow-lg shadow-[#382E2B]/10 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-3 py-1.5 text-[11px] font-bold text-[#A6978C] uppercase tracking-wider border-b border-[#F5EFE8] flex items-center justify-between">
+                        <span>10 Area Indralaya</span>
+                        <span className="text-[10px] font-normal lowercase text-[#8C6D58]">klik untuk memilih</span>
+                      </div>
+                      {INDRALAYA_AREAS.map((item) => {
+                        const isSelected = area.trim().toLowerCase() === item.toLowerCase()
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => {
+                              setArea(item)
+                              setIsAreaDropdownOpen(false)
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#FAF2EB] text-[#C86D51] font-bold'
+                                : 'text-[#382E2B] hover:bg-[#FAF7F2]'
+                            }`}
+                          >
+                            <span>{item}</span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-[#C86D51]" />}
+                          </button>
+                        )
+                      })}
+
+                      {area.trim() && !INDRALAYA_AREAS.some((item) => item.toLowerCase() === area.trim().toLowerCase()) && (
+                        <div className="px-3 py-2 border-t border-[#F5EFE8] text-[11px] bg-[#FAF7F2] rounded-xl text-[#7A6B63] flex items-center justify-between">
+                          <span>
+                            Area kustom: <strong className="text-[#382E2B]">"{area}"</strong>
+                          </span>
+                          <span className="text-[10px] text-emerald-600 font-semibold">Tersimpan</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Quick Select Badges / Pills */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+                    <span className="text-[11px] text-[#8C6D58] font-medium">Area cepat:</span>
+                    {[
+                      'Simpang Timbangan (KM 32)',
+                      'Gang Lampung & Sekitarnya',
+                      'Tanjung Senai',
+                      'Palem Raya',
+                      'Indralaya Raya',
+                    ].map((quickArea) => (
+                      <button
+                        key={quickArea}
+                        type="button"
+                        onClick={() => {
+                          setArea(quickArea)
+                          setIsAreaDropdownOpen(false)
+                        }}
+                        className={`text-[11px] px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+                          area === quickArea
+                            ? 'bg-[#382E2B] text-white border-[#382E2B] font-bold'
+                            : 'bg-[#FAF7F2] text-[#5C4A3E] border-[#E8DFD3] hover:bg-[#F2E8DC]'
+                        }`}
+                      >
+                        {quickArea.replace(' (KM 32)', '').replace(' & Sekitarnya', '')}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
@@ -389,7 +500,7 @@ export const AddPlacePage: React.FC = () => {
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Contoh: Jl. Ir. H. Juanda No. 120, Dago, Coblong"
+                    placeholder="Contoh: Jl. Lintas Timur KM 32, Depan Gerbang Utama UNSRI"
                     className="w-full px-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                   />
                 </div>

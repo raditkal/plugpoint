@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Compass, RefreshCw, Coffee } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Compass, RefreshCw, Coffee, Plus } from 'lucide-react'
 import SearchBar from '../components/SearchBar'
 import PlaceCard from '../components/PlaceCard'
 import { getPlaces } from '../services/places'
@@ -30,7 +31,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
       {/* HERO SECTION - Warm, Aesthetic, Playful Cafe Vibe */}
       <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-24 border-b border-[#EFE7DE]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF0E6] border border-[#ECD9C9] text-xs font-bold text-[#8C5E48] mx-auto shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#C86D51] animate-pulse"></span>
+            <span>Direktori Spot Nugas & Kafe Indralaya (Sekitar UNSRI)</span>
+          </div>
 
           {/* Calming Warm Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#2D231E] max-w-2xl mx-auto leading-tight">
@@ -42,6 +46,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
               Pikiran Tenang..
             </span>
           </h1>
+
+          <p className="text-xs sm:text-sm text-[#7A6B63] max-w-lg mx-auto leading-relaxed">
+            Temukan tempat nugas dengan Wi-Fi kencang, colokan melimpah, dan suasana tenang di area Simpang Timbangan, Gang Lampung, hingga Tanjung Senai.
+          </p>
 
           {/* Search Bar & Quick Filters */}
           <div className="pt-4">
@@ -119,19 +127,48 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
               <div className="w-14 h-14 mx-auto rounded-3xl bg-[#EDE4D6] flex items-center justify-center text-[#8C6D58]">
                 <Coffee className="w-7 h-7" />
               </div>
-              <h3 className="text-lg font-bold text-[#2D231E]">
-                Belum ada tempat yang cocok nih~
-              </h3>
-              <p className="text-xs sm:text-sm text-[#7A6B63] max-w-sm mx-auto">
-                Coba kurangi filter atau ganti kata kunci pencarian kamu ya!
-              </p>
-              <button
-                type="button"
-                onClick={() => setFilterOptions({})}
-                className="mt-2 inline-flex items-center px-4 py-2 text-xs font-bold text-[#C86D51] bg-[#FAF2EB] rounded-full hover:bg-[#F3E2D5] transition-colors border border-[#F0D5C3]"
-              >
-                Reset Semua Filter
-              </button>
+
+              {Boolean(
+                (filterOptions.searchQuery && filterOptions.searchQuery.trim()) ||
+                filterOptions.fastWifiOnly ||
+                filterOptions.manyOutletsOnly ||
+                filterOptions.quietOnly ||
+                (filterOptions.sortBy && filterOptions.sortBy !== 'newest')
+              ) ? (
+                <>
+                  <h3 className="text-lg font-bold text-[#2D231E]">
+                    Belum ada tempat yang cocok nih~
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#7A6B63] max-w-sm mx-auto">
+                    Coba kurangi filter atau ganti kata kunci pencarian kamu ya!
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setFilterOptions({})}
+                    className="mt-2 inline-flex items-center px-4 py-2 text-xs font-bold text-[#C86D51] bg-[#FAF2EB] rounded-full hover:bg-[#F3E2D5] transition-colors border border-[#F0D5C3] cursor-pointer"
+                  >
+                    Reset Semua Filter
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-bold text-[#2D231E]">
+                    Belum Ada Tempat Terdaftar
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#7A6B63] max-w-sm mx-auto">
+                    Direktori Indralaya masih segar! Yuk, jadilah orang pertama yang merekomendasikan spot kafe atau nugas favoritmu di sekitar UNSRI.
+                  </p>
+                  <div className="pt-2">
+                    <Link
+                      to="/add-place"
+                      className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-white bg-[#C86D51] hover:bg-[#B35A3F] rounded-full transition-all shadow-xs"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Tambah Tempat Sekarang</span>
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </section>

@@ -49,10 +49,10 @@ export const AdminPage: React.FC = () => {
   const [reportFilter, setReportFilter] = useState<ReportStatus | 'all'>('all')
   const [isReportsLoading, setIsReportsLoading] = useState(true)
 
-  // Modal Moderasi (Tolak / Revisi)
+  // Modal Moderasi (Tolak)
   const [selectedPlaceForAction, setSelectedPlaceForAction] = useState<{
     place: Place
-    action: 'rejected' | 'needs_revision'
+    action: 'rejected'
   } | null>(null)
   const [actionReason, setActionReason] = useState('')
   const [isActionSubmitting, setIsActionSubmitting] = useState(false)
@@ -214,7 +214,7 @@ export const AdminPage: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-[#EFE7DE] shadow-xs">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-[#7A6B63] mr-1">Status:</span>
-                {(['pending', 'needs_revision', 'approved', 'rejected', 'all'] as const).map(
+                {(['pending', 'approved', 'rejected', 'all'] as const).map(
                   (status) => (
                     <button
                       key={status}
@@ -228,8 +228,6 @@ export const AdminPage: React.FC = () => {
                     >
                       {status === 'pending'
                         ? 'Menunggu (Pending)'
-                        : status === 'needs_revision'
-                        ? 'Perlu Revisi'
                         : status === 'approved'
                         ? 'Disetujui'
                         : status === 'rejected'
@@ -467,22 +465,6 @@ export const AdminPage: React.FC = () => {
                           </button>
                         )}
 
-                        {place.status !== 'needs_revision' && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setSelectedPlaceForAction({
-                                place,
-                                action: 'needs_revision',
-                              })
-                            }
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
-                          >
-                            <AlertTriangle className="w-4 h-4" />
-                            <span>Minta Revisi</span>
-                          </button>
-                        )}
-
                         {place.status !== 'rejected' && (
                           <button
                             type="button"
@@ -644,15 +626,13 @@ export const AdminPage: React.FC = () => {
         )}
       </div>
 
-      {/* MODAL ALASAN PENOLAKAN / REVISI */}
+      {/* MODAL ALASAN PENOLAKAN */}
       {selectedPlaceForAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl border border-[#EAE0D2] space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black text-[#2D231E]">
-                {selectedPlaceForAction.action === 'needs_revision'
-                  ? 'Minta Perbaikan Informasi'
-                  : 'Tolak Pengajuan Tempat'}
+                Tolak Pengajuan Tempat
               </h3>
               <button
                 type="button"
@@ -664,7 +644,7 @@ export const AdminPage: React.FC = () => {
             </div>
 
             <p className="text-xs text-[#7A6B63]">
-              Berikan catatan kepada kontributor untuk tempat{' '}
+              Berikan alasan penolakan untuk tempat{' '}
               <strong>{selectedPlaceForAction.place.name}</strong>:
             </p>
 
@@ -674,11 +654,7 @@ export const AdminPage: React.FC = () => {
                 rows={4}
                 value={actionReason}
                 onChange={(e) => setActionReason(e.target.value)}
-                placeholder={
-                  selectedPlaceForAction.action === 'needs_revision'
-                    ? 'Contoh: Mohon lengkapi alamat detail atau jam buka yang akurat...'
-                    : 'Contoh: Lokasi ini adalah rumah pribadi / bukan tempat publik...'
-                }
+                placeholder="Contoh: Tempat ini duplikat dengan tempat yang sudah terdaftar / informasi tidak valid / bukan kafe publik..."
                 className="w-full text-xs p-3.5 rounded-2xl border border-[#DFD3C3] bg-[#FAF7F2] text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
               />
 
@@ -693,13 +669,9 @@ export const AdminPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isActionSubmitting}
-                  className={`px-5 py-2.5 rounded-full text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 ${
-                    selectedPlaceForAction.action === 'needs_revision'
-                      ? 'bg-amber-500 hover:bg-amber-600'
-                      : 'bg-rose-500 hover:bg-rose-600'
-                  }`}
+                  className="px-5 py-2.5 rounded-full text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 bg-rose-600 hover:bg-rose-700"
                 >
-                  {isActionSubmitting ? 'Memproses...' : 'Kirim Keputusan'}
+                  {isActionSubmitting ? 'Memproses...' : 'Tolak Tempat Ini'}
                 </button>
               </div>
             </form>

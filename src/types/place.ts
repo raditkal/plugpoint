@@ -13,7 +13,13 @@ export type PlaceUpdate = Database['public']['Tables']['places']['Update']
 
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Report = Database['public']['Tables']['reports']['Row']
-export type PlaceReview = Database['public']['Tables']['place_reviews']['Row']
+export type PlaceReview = Database['public']['Tables']['place_reviews']['Row'] & {
+  profiles?: {
+    id?: string
+    display_name?: string
+  } | null
+}
+export type PlaceReviewInsert = Database['public']['Tables']['place_reviews']['Insert']
 
 export interface DaySchedule {
   open: string // Format "08:00"

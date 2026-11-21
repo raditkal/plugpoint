@@ -17,7 +17,8 @@ import {
   Loader2,
   RefreshCw,
   Heart,
-  Calendar
+  Calendar,
+  User
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -213,7 +214,36 @@ export const MyPlacesPage: React.FC = () => {
             </div>
 
             {/* Content List Kontribusi */}
-            {isLoading ? (
+            {!user ? (
+              <div className="bg-white rounded-3xl p-10 sm:p-12 text-center border border-[#EFE7DE] shadow-xs space-y-4">
+                <div className="w-14 h-14 mx-auto rounded-3xl bg-[#FAF2EB] text-[#C86D51] flex items-center justify-center">
+                  <User className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[#2D231E]">
+                    Masuk untuk Melihat Riwayat Kontribusimu
+                  </h3>
+                  <p className="text-xs text-[#7A6B63] max-w-sm mx-auto leading-relaxed">
+                    Masuk ke akunmu untuk memantau status moderasi (disetujui, perlu revisi, atau ditolak) dari tempat yang kamu rekomendasikan.
+                  </p>
+                </div>
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#382E2B] hover:bg-[#251D1A] text-white text-xs font-bold transition-all shadow-xs"
+                  >
+                    <User className="w-4 h-4 text-[#F4CDBE]" />
+                    <span>Masuk ke Akun</span>
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3]"
+                  >
+                    <span>Daftar Gratis</span>
+                  </Link>
+                </div>
+              </div>
+            ) : isLoading ? (
               <div className="py-20 text-center space-y-3">
                 <Loader2 className="w-8 h-8 mx-auto animate-spin text-[#C86D51]" />
                 <p className="text-xs font-bold text-[#7A6B63]">Memuat tempat kontribusimu...</p>

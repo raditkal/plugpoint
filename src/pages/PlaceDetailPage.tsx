@@ -13,11 +13,16 @@ import {
   CheckCircle2,
   AlertCircle,
   Heart,
-  Calendar
+  Calendar,
+  Share2,
+  Check,
+  Star,
+  Send
 } from 'lucide-react'
-import { getPlaceById, formatAddedDate, formatFullDate } from '../services/places'
+import { getPlaceById, formatAddedDate, formatFullDate, getPlaceReviews, createPlaceReview } from '../services/places'
 import { useFavorites } from '../context/FavoritesContext'
-import type { Place } from '../types/place'
+import { useAuth } from '../context/AuthContext'
+import type { Place, PlaceReview } from '../types/place'
 
 // Fallback images cafe aesthetic
 const DETAIL_IMAGES = [
@@ -29,11 +34,27 @@ const DETAIL_IMAGES = [
 
 export const PlaceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const { user } = useAuth()
   const { isFavorite, toggleFavorite } = useFavorites()
   const [place, setPlace] = useState<Place | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [reportSubmitted, setReportSubmitted] = useState(false)
+
+  // Reviews State
+  const [reviews, setReviews] = useState<PlaceReview[]>([])
+  const [reviewRating, setReviewRating] = useState<number>(5)
+  const [reviewComment, setReviewComment] = useState<string>('')
+  const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false)
+
+  // Share Copy State
+  const [copied, setCopied] = useState<boolean>(false)
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -43,9 +64,35 @@ export const PlaceDetailPage: React.FC = () => {
       const res = await getPlaceById(id)
       setPlace(res.data)
       setIsLoading(false)
+
+      if (res.data?.id) {
+        const revRes = await getPlaceReviews(res.data.id)
+        setReviews(revRes.data)
+      }
     }
     loadPlace()
   }, [id])
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user || !place) return
+
+    setIsSubmittingReview(true)
+    const res = await createPlaceReview({
+      place_id: place.id,
+      user_id: user.id,
+      wifi_rating: reviewRating,
+      outlet_rating: place.outlet_level === 'many' ? 5 : 4,
+      noise_rating: place.noise_level === 'quiet' ? 5 : 4,
+      comment: reviewComment.trim() || undefined,
+    })
+
+    if (res.data) {
+      setReviews((prev) => [res.data!, ...prev.filter((r) => r.user_id !== user.id)])
+      setReviewComment('')
+    }
+    setIsSubmittingReview(false)
+  }
 
   if (isLoading) {
     return (
@@ -108,20 +155,43 @@ export const PlaceDetailPage: React.FC = () => {
           Kembali ke Direktori
         </Link>
 
-        {/* Favorite Button */}
-        <button
-          type="button"
-          onClick={() => toggleFavorite(place.id)}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border ${
-            favorite
-              ? 'bg-rose-50 border-rose-200 text-rose-600'
-              : 'bg-white border-[#DFD3C3] text-[#5C4A3E] hover:border-rose-200 hover:text-rose-600'
-          }`}
-          title={favorite ? 'Hapus dari favorit' : 'Simpan ke favorit'}
-        >
-          <Heart className={`w-4 h-4 ${favorite ? 'fill-rose-500 text-rose-500' : ''}`} />
-          <span>{displayFavoritesCount} Favorit</span>
-        </button>
+        {/* Action Buttons: Share & Favorite */}
+        <div className="flex items-center gap-2">
+          {/* Share Button */}
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white hover:bg-[#F2ECE3] text-xs font-bold text-[#5C4A3E] border border-[#DFD3C3] transition-colors shadow-2xs cursor-pointer"
+            title="Salin tautan tempat ini"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-emerald-700 font-bold">Tersalin!</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="w-3.5 h-3.5 text-[#C86D51]" />
+                <span className="hidden sm:inline">Bagikan</span>
+              </>
+            )}
+          </button>
+
+          {/* Favorite Button */}
+          <button
+            type="button"
+            onClick={() => toggleFavorite(place.id)}
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border ${
+              favorite
+                ? 'bg-rose-50 border-rose-200 text-rose-600'
+                : 'bg-white border-[#DFD3C3] text-[#5C4A3E] hover:border-rose-200 hover:text-rose-600'
+            }`}
+            title={favorite ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+          >
+            <Heart className={`w-3.5 h-3.5 ${favorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+            <span>{displayFavoritesCount} Favorit</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Container */}
@@ -262,6 +332,124 @@ export const PlaceDetailPage: React.FC = () => {
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Ruang Ber-AC & Dingin Nyaman</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Ulasan & Rating Komunitas */}
+            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-5">
+              <div className="flex items-center justify-between border-b border-[#F2E8DC] pb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⭐</span>
+                  <h2 className="text-lg font-black text-[#2D231E]">
+                    Ulasan Pengunjung ({reviews.length})
+                  </h2>
+                </div>
+                {reviews.length > 0 && (
+                  <div className="flex items-center gap-1.5 bg-[#FAF2EB] px-3 py-1 rounded-full text-xs font-extrabold text-[#C86D51] border border-[#F0D5C3]">
+                    <Star className="w-3.5 h-3.5 fill-[#C86D51] text-[#C86D51]" />
+                    <span>
+                      {(
+                        reviews.reduce((acc, r) => acc + (r.wifi_rating || 5), 0) / reviews.length
+                      ).toFixed(1)}{' '}
+                      / 5.0
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Form Tambah Ulasan */}
+              {user ? (
+                <form onSubmit={handleReviewSubmit} className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] space-y-3">
+                  <p className="text-xs font-bold text-[#2D231E]">Tulis Ulasan & Pengalaman Nugas:</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#7A6B63]">Rating:</span>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setReviewRating(star)}
+                          className="p-1 hover:scale-110 transition-transform cursor-pointer"
+                        >
+                          <Star
+                            className={`w-4 h-4 ${
+                              star <= reviewRating
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-[#DFD3C3]'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <textarea
+                    rows={2}
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    placeholder="Bagaimana kecepatan Wi-Fi dan suasananya? (opsional)"
+                    className="w-full text-xs p-3 rounded-xl border border-[#DFD3C3] bg-white text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReview}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold transition-all disabled:opacity-50 shadow-xs cursor-pointer"
+                    >
+                      <Send className="w-3 h-3" />
+                      <span>{isSubmittingReview ? 'Mengirim...' : 'Kirim Ulasan'}</span>
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex flex-wrap items-center justify-between gap-2 text-xs text-[#7A6B63]">
+                  <span>Ingin berbagi ulasan pengalaman nugas di sini?</span>
+                  <Link
+                    to="/login"
+                    className="font-bold text-[#C86D51] hover:underline"
+                  >
+                    Masuk untuk mengulas →
+                  </Link>
+                </div>
+              )}
+
+              {/* Daftar Ulasan */}
+              <div className="space-y-3">
+                {reviews.length === 0 ? (
+                  <p className="text-xs text-[#A8988C] text-center py-4 italic">
+                    Belum ada ulasan untuk tempat ini. Jadilah yang pertama memberikan ulasan!
+                  </p>
+                ) : (
+                  reviews.map((rev) => (
+                    <div
+                      key={rev.id}
+                      className="p-4 rounded-2xl bg-[#FCFAF7] border border-[#F2ECE3] space-y-2 text-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-[#EFE4D6] text-[#8C6D58] font-bold text-[10px] flex items-center justify-center border border-[#DFD3C3]">
+                            {(rev.profiles?.display_name || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <span className="font-bold text-[#2D231E]">
+                            {rev.profiles?.display_name || 'Pengunjung Plugpoint'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-0.5 text-amber-400">
+                          {Array.from({ length: rev.wifi_rating || 5 }).map((_, i) => (
+                            <Star key={i} className="w-3 h-3 fill-amber-400" />
+                          ))}
+                        </div>
+                      </div>
+                      {rev.comment && (
+                        <p className="text-[#5C4D45] leading-relaxed pl-8">
+                          "{rev.comment}"
+                        </p>
+                      )}
+                      <p className="text-[10px] text-[#A8988C] text-right">
+                        {formatAddedDate(rev.created_at)}
+                      </p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>

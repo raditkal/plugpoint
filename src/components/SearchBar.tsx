@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, X, Wifi, Zap, Volume2, Moon, Sparkles, Clock, Heart } from 'lucide-react'
+import { Search, X, Wifi, Zap, Volume2, Moon, Sparkles, Clock, Heart, MapPin } from 'lucide-react'
 import type { PlaceFilterOptions } from '../types/place'
 
 interface SearchBarProps {
@@ -45,7 +45,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           type="text"
           value={filterOptions.searchQuery || ''}
           onChange={handleQueryChange}
-          placeholder="Cari kafe santai, perpustakaan, atau area (misal: Dago, Tebet)..."
+          placeholder="Cari kafe santai, spot nugas sekitar UNSRI, Timbangan, Gang Lampung..."
           className="w-full py-3.5 sm:py-4 px-3 sm:px-4 text-sm sm:text-base bg-transparent text-[#2D231E] placeholder:text-[#A8988C] focus:outline-none"
         />
         {filterOptions.searchQuery && (
@@ -57,6 +57,47 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <X className="w-4 h-4" />
           </button>
         )}
+      </div>
+
+      {/* Quick Area Filters for Indralaya */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs">
+        <span className="text-[#8C6D58] font-bold text-[11px] flex items-center gap-1 shrink-0 mr-1">
+          <MapPin className="w-3 h-3 text-[#C86D51]" />
+          Area:
+        </span>
+        {[
+          { label: 'Semua Area', value: '' },
+          { label: 'Simpang Timbangan', value: 'Simpang Timbangan' },
+          { label: 'Gang Lampung', value: 'Gang Lampung' },
+          { label: 'Tanjung Senai', value: 'Tanjung Senai' },
+          { label: 'Palem Raya', value: 'Palem Raya' },
+          { label: 'Indralaya Raya', value: 'Indralaya Raya' },
+        ].map((areaItem) => {
+          const isActive =
+            areaItem.value === ''
+              ? !filterOptions.searchQuery
+              : filterOptions.searchQuery?.toLowerCase().includes(areaItem.value.toLowerCase())
+
+          return (
+            <button
+              key={areaItem.label}
+              type="button"
+              onClick={() =>
+                onFilterChange({
+                  ...filterOptions,
+                  searchQuery: areaItem.value,
+                })
+              }
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+                isActive
+                  ? 'bg-[#382E2B] text-white border-[#382E2B] shadow-2xs'
+                  : 'bg-white text-[#5C4A3E] border-[#E8DFD3] hover:bg-[#F7EFE5]'
+              }`}
+            >
+              {areaItem.label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Filter Chips / Quick Filters - Pastel Warm Cafe Aesthetic */}
