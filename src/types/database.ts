@@ -182,5 +182,34 @@ export interface Database {
         }
       }
     }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_trusted_contributor: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      moderate_place: {
+        Args: {
+          target_place_id: string
+          new_status: string
+          reason?: string | null
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      contributor_status: ContributorStatus
+      place_status: PlaceStatus
+      outlet_level: OutletLevel
+      noise_level: NoiseLevel
+      report_reason: ReportReason
+      report_status: ReportStatus
+    }
   }
 }

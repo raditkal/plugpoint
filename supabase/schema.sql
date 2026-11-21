@@ -179,8 +179,8 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- Jika bukan admin yang mengupdate, kembalikan nilai is_admin dan contributor_status ke nilai lama
-  IF NOT public.is_admin() THEN
+  -- Cegah eskalasi hak akses hanya jika diupdate dari API web (auth.uid() IS NOT NULL) oleh user biasa
+  IF auth.uid() IS NOT NULL AND NOT public.is_admin() THEN
     NEW.is_admin := OLD.is_admin;
     NEW.contributor_status := OLD.contributor_status;
   END IF;

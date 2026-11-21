@@ -1,4 +1,4 @@
-import type { Database, OutletLevel, NoiseLevel, PlaceStatus } from './database'
+import type { Database, OutletLevel, NoiseLevel, PlaceStatus, ReportStatus, ReportReason } from './database'
 
 export type Place = Database['public']['Tables']['places']['Row']
 export type PlaceInsert = Database['public']['Tables']['places']['Insert']
@@ -26,4 +26,4 @@ export interface PlaceFilterOptions {
   openLateOnly?: boolean // buka melewati jam 21:00
 }
 
-export type { OutletLevel, NoiseLevel, PlaceStatus }
+export type { OutletLevel, NoiseLevel, PlaceStatus, ReportStatus, ReportReason }
