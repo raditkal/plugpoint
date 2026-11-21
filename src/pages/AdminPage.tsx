@@ -25,7 +25,14 @@ import {
   updateReportStatus,
   type ExtendedReport
 } from '../services/admin'
-import { getShortId, formatAddedDate, formatFullDate } from '../services/places'
+import {
+  getShortId,
+  formatAddedDate,
+  formatFullDate,
+  getPlaces,
+  findSimilarPlace,
+  type SimilarPlaceMatch
+} from '../services/places'
 import type { Place, PlaceStatus, ReportStatus } from '../types/place'
 
 export const AdminPage: React.FC = () => {
@@ -33,6 +40,7 @@ export const AdminPage: React.FC = () => {
 
   // Tempat
   const [places, setPlaces] = useState<Place[]>([])
+  const [approvedPlaces, setApprovedPlaces] = useState<Place[]>([])
   const [placeFilter, setPlaceFilter] = useState<PlaceStatus | 'all'>('pending')
   const [isPlacesLoading, setIsPlacesLoading] = useState(true)
 
@@ -49,11 +57,21 @@ export const AdminPage: React.FC = () => {
   const [actionReason, setActionReason] = useState('')
   const [isActionSubmitting, setIsActionSubmitting] = useState(false)
 
+  // Modal Peringatan Duplikat saat Approval
+  const [duplicateApprovalWarning, setDuplicateApprovalWarning] = useState<{
+    place: Place
+    match: SimilarPlaceMatch
+  } | null>(null)
+
   // Load Tempat
   const fetchPlaces = async () => {
     setIsPlacesLoading(true)
-    const res = await getAdminPlaces(placeFilter)
-    setPlaces(res.data)
+    const [resAdmin, resApproved] = await Promise.all([
+      getAdminPlaces(placeFilter),
+      getPlaces()
+    ])
+    setPlaces(resAdmin.data)
+    setApprovedPlaces(resApproved.data)
     setIsPlacesLoading(false)
   }
 
@@ -73,10 +91,22 @@ export const AdminPage: React.FC = () => {
     }
   }, [activeTab, placeFilter, reportFilter])
 
-  // Handler Moderasi Cepat (Approve)
-  const handleApprove = async (place: Place) => {
+  // Handler Moderasi (Approve) dengan Cek Duplikat
+  const handleApproveClick = (place: Place) => {
+    const match = findSimilarPlace(place.name, approvedPlaces, place.id)
+    if (match.isSimilar) {
+      // Munculkan dialog peringatan konfirmasi ke admin
+      setDuplicateApprovalWarning({ place, match })
+    } else {
+      // Langsung terbitkan jika tidak ada kemiripan
+      executeApprove(place)
+    }
+  }
+
+  const executeApprove = async (place: Place) => {
     setIsPlacesLoading(true)
     await moderatePlace(place.id, 'approved')
+    setDuplicateApprovalWarning(null)
     await fetchPlaces()
   }
 
@@ -245,6 +275,11 @@ export const AdminPage: React.FC = () => {
                     daily?: { open?: string; close?: string }
                   } | null
 
+                  const duplicateMatch =
+                    place.status !== 'approved'
+                      ? findSimilarPlace(place.name, approvedPlaces, place.id)
+                      : null
+
                   return (
                     <div
                       key={place.id}
@@ -357,6 +392,41 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Peringatan Potensi Duplikat untuk Admin */}
+                      {duplicateMatch?.isSimilar && duplicateMatch.matchedPlace && (
+                        <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1.5 animate-in fade-in">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-extrabold text-amber-950 flex items-center gap-1.5">
+                              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                              <span>⚠️ Potensi Duplikat ({duplicateMatch.similarityPercent}% Kesamaan)</span>
+                            </span>
+                            <span className="text-[10px] font-bold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-full">
+                              {duplicateMatch.matchedWords.length} Kata Sama
+                            </span>
+                          </div>
+                          <p className="text-[#5C4524] leading-relaxed">
+                            Tempat ini memiliki kemiripan nama dengan tempat yang sudah terbit:{' '}
+                            <strong className="text-amber-950 font-bold">
+                              "{duplicateMatch.matchedPlace.name}"
+                            </strong>
+                            {duplicateMatch.matchedPlace.area ? ` di ${duplicateMatch.matchedPlace.area}` : ''}.
+                          </p>
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 text-[11px]">
+                            <span className="text-amber-800">
+                              Kata / ejaan mirip: <strong className="font-semibold">{duplicateMatch.matchedWords.join(', ')}</strong>
+                            </span>
+                            <Link
+                              to={`/places/${getShortId(duplicateMatch.matchedPlace.id)}`}
+                              target="_blank"
+                              className="inline-flex items-center gap-1 text-amber-900 font-bold underline hover:text-[#C86D51]"
+                            >
+                              <span>Buka Tempat Terbit</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Catatan Tempat / Alasan Penolakan */}
                       {place.notes && (
                         <p className="text-xs text-[#5C4D45] bg-[#FAF8F5] p-3 rounded-2xl border border-[#F2ECE3] italic">
@@ -375,11 +445,25 @@ export const AdminPage: React.FC = () => {
                         {place.status !== 'approved' && (
                           <button
                             type="button"
-                            onClick={() => handleApprove(place)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+                            onClick={() => handleApproveClick(place)}
+                            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer ${
+                              duplicateMatch?.isSimilar
+                                ? 'bg-amber-600 hover:bg-amber-700'
+                                : 'bg-emerald-600 hover:bg-emerald-700'
+                            }`}
+                            title={duplicateMatch?.isSimilar ? 'Periksa potensi duplikat sebelum disetujui' : 'Setujui tempat'}
                           >
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Setujui (Terbitkan)</span>
+                            {duplicateMatch?.isSimilar ? (
+                              <>
+                                <AlertTriangle className="w-4 h-4" />
+                                <span>Tinjau & Setujui</span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4" />
+                                <span>Setujui (Terbitkan)</span>
+                              </>
+                            )}
                           </button>
                         )}
 
@@ -619,6 +703,72 @@ export const AdminPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PERINGATAN APPROVAL TEMPAT POTENSI DUPLIKAT */}
+      {duplicateApprovalWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-7 shadow-2xl border border-amber-200 space-y-4">
+            <div className="flex items-center gap-2.5 text-amber-600 border-b border-[#F4EBE1] pb-3">
+              <div className="w-9 h-9 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-700">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[#2D231E]">
+                  Peringatan: Potensi Tempat Duplikat
+                </h3>
+                <p className="text-[11px] text-[#7A6B63]">
+                  Periksa kemiripan sebelum menyetujui tempat ini ke direktori publik
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs bg-[#FAF7F2] p-4 rounded-2xl border border-[#EFE7DE]">
+              <div>
+                <p className="text-[10px] font-bold uppercase text-[#8C7A70]">Tempat yang akan disetujui:</p>
+                <p className="font-extrabold text-[#2D231E] text-sm mt-0.5">{duplicateApprovalWarning.place.name}</p>
+                <p className="text-[#5C4D45]">{duplicateApprovalWarning.place.area} • {duplicateApprovalWarning.place.address}</p>
+              </div>
+
+              <div className="pt-2 border-t border-[#E8DFD3]">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase text-amber-800">
+                    Mirip dengan tempat yang sudah terbit:
+                  </p>
+                  <span className="text-[10px] font-extrabold bg-amber-200/90 text-amber-950 px-2 py-0.5 rounded-full">
+                    {duplicateApprovalWarning.match.similarityPercent}% Mirip
+                  </span>
+                </div>
+                <p className="font-extrabold text-amber-950 text-sm mt-0.5">{duplicateApprovalWarning.match.matchedPlace?.name}</p>
+                <p className="text-[#5C4D45]">{duplicateApprovalWarning.match.matchedPlace?.area} • {duplicateApprovalWarning.match.matchedPlace?.address}</p>
+                <p className="text-[11px] text-amber-800 mt-1">
+                  Kata / ejaan mirip: <strong>{duplicateApprovalWarning.match.matchedWords.join(', ')}</strong>
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#5C4D45] leading-relaxed">
+              Apakah tempat ini merupakan cabang berbeda atau tempat yang sama persis? Jika tempat ini duplikat, Anda dapat membatalkan dan menolak pengajuan atau meminta revisi.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-end gap-2.5 pt-2 border-t border-[#F2ECE3]">
+              <button
+                type="button"
+                onClick={() => setDuplicateApprovalWarning(null)}
+                className="px-4 py-2.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#F2ECE3] transition-colors cursor-pointer"
+              >
+                Batal & Periksa Dulu
+              </button>
+              <button
+                type="button"
+                onClick={() => executeApprove(duplicateApprovalWarning.place)}
+                className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                Tetap Setujui (Bukan Duplikat)
+              </button>
+            </div>
           </div>
         </div>
       )}

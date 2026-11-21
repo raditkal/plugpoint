@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -10,17 +10,19 @@ import {
   Clock,
   FileText,
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
   Loader2,
   Sparkles,
   Clock3,
   Image as ImageIcon,
   Upload,
+  ExternalLink,
   X
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { createPlace, getShortId } from '../services/places'
-import type { OutletLevel, NoiseLevel, PlaceInsert } from '../types/place'
+import { createPlace, getShortId, getPlaces, findSimilarPlace, type SimilarPlaceMatch } from '../services/places'
+import type { OutletLevel, NoiseLevel, PlaceInsert, Place } from '../types/place'
 
 // Pilihan cepat foto kafe aesthetic
 const PRESET_CAFE_IMAGES = [
@@ -68,6 +70,40 @@ export const AddPlacePage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [createdPlaceId, setCreatedPlaceId] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
+
+  // Duplicate Detection State
+  const [existingPlaces, setExistingPlaces] = useState<Place[]>([])
+  const [duplicateWarning, setDuplicateWarning] = useState<SimilarPlaceMatch | null>(null)
+
+  useEffect(() => {
+    async function loadExistingPlaces() {
+      try {
+        const res = await getPlaces()
+        setExistingPlaces(res.data)
+      } catch (err) {
+        console.warn('Gagal memuat tempat untuk deteksi duplikat:', err)
+      }
+    }
+    loadExistingPlaces()
+  }, [])
+
+  const checkDuplicate = (inputName: string) => {
+    const trimmed = inputName.trim()
+    if (!trimmed || trimmed.length < 3) {
+      setDuplicateWarning(null)
+      return
+    }
+    const match = findSimilarPlace(trimmed, existingPlaces)
+    if (match.isSimilar) {
+      setDuplicateWarning(match)
+    } else {
+      setDuplicateWarning(null)
+    }
+  }
+
+  const handleNameBlur = () => {
+    checkDuplicate(name)
+  }
 
   // Upload handler untuk file lokal
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -269,10 +305,65 @@ export const AddPlacePage: React.FC = () => {
                     type="text"
                     required
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value)
+                      if (duplicateWarning && !e.target.value.trim()) {
+                        setDuplicateWarning(null)
+                      }
+                    }}
+                    onBlur={handleNameBlur}
                     placeholder="Contoh: Titik Koma Dago, Ruang Seduh & Kerja"
                     className="w-full px-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                   />
+
+                  {/* Warning Duplikat Tempat */}
+                  {duplicateWarning?.matchedPlace && (
+                    <div className="p-3.5 mt-2 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2 animate-in fade-in">
+                      <div className="flex items-start gap-2.5">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                        <div className="space-y-1 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                              <span>⚠️ Potensi Duplikat Terdeteksi</span>
+                              <span className="text-[10px] bg-amber-200/90 text-amber-950 px-2 py-0.5 rounded-full font-extrabold">
+                                {duplicateWarning.similarityPercent}% Mirip
+                              </span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setDuplicateWarning(null)}
+                              className="text-amber-700 hover:text-amber-950 text-[11px] font-semibold"
+                            >
+                              Tutup
+                            </button>
+                          </div>
+                          <p className="leading-relaxed text-[#5C4524]">
+                            Nama tempat ini mirip dengan tempat yang sudah terdaftar:{' '}
+                            <strong className="text-amber-950 font-bold">
+                              "{duplicateWarning.matchedPlace.name}"
+                            </strong>
+                            {duplicateWarning.matchedPlace.area ? ` di ${duplicateWarning.matchedPlace.area}` : ''}.
+                          </p>
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px]">
+                            <span className="text-amber-800">
+                              Kata / ejaan mirip: <strong className="font-semibold">{duplicateWarning.matchedWords.join(', ')}</strong>
+                            </span>
+                            <Link
+                              to={`/places/${getShortId(duplicateWarning.matchedPlace.id)}`}
+                              target="_blank"
+                              className="inline-flex items-center gap-1 text-amber-900 font-bold underline hover:text-[#C86D51]"
+                            >
+                              <span>Lihat Tempat Ini</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          </div>
+                          <p className="text-[10px] text-amber-700 italic pt-0.5">
+                            💡 Kamu tetap dapat melanjutkan kirim jika ini adalah cabang baru atau memang tempat yang berbeda.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">

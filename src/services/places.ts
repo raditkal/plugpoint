@@ -269,6 +269,228 @@ export function formatFullDate(dateString?: string | null): string {
   }
 }
 
+export interface SimilarPlaceMatch {
+  isSimilar: boolean
+  matchedPlace: Place | null
+  similarityPercent: number
+  matchedWords: string[]
+  totalCandidateWords: number
+  totalExistingWords: number
+  message: string
+}
+
+/**
+ * Menghitung jarak Levenshtein antara dua string (jumlah operasi insert, delete, substitution)
+ */
+export function levenshteinDistance(a: string, b: string): number {
+  const m = a.length
+  const n = b.length
+  if (m === 0) return n
+  if (n === 0) return m
+
+  let prevRow = new Array(n + 1)
+  let currRow = new Array(n + 1)
+
+  for (let j = 0; j <= n; j++) {
+    prevRow[j] = j
+  }
+
+  for (let i = 1; i <= m; i++) {
+    currRow[0] = i
+    const charA = a[i - 1]
+
+    for (let j = 1; j <= n; j++) {
+      const charB = b[j - 1]
+      const cost = charA === charB ? 0 : 1
+      currRow[j] = Math.min(
+        prevRow[j] + 1,       // deletion
+        currRow[j - 1] + 1,   // insertion
+        prevRow[j - 1] + cost // substitution
+      )
+    }
+
+    for (let j = 0; j <= n; j++) {
+      prevRow[j] = currRow[j]
+    }
+  }
+
+  return prevRow[n]
+}
+
+/**
+ * Menghitung rasio kemiripan ejaan karakter antara dua string (0.0 - 1.0)
+ */
+export function stringSimilarity(a: string, b: string): number {
+  const strA = a.trim().toLowerCase()
+  const strB = b.trim().toLowerCase()
+  if (strA === strB) return 1.0
+  const maxLen = Math.max(strA.length, strB.length)
+  if (maxLen === 0) return 1.0
+  const dist = levenshteinDistance(strA, strB)
+  return Math.max(0, 1 - dist / maxLen)
+}
+
+/**
+ * Memeriksa apakah dua kata cocok secara persis atau merupakan typo tipis (Levenshtein)
+ */
+function isFuzzyWordMatch(w1: string, w2: string): { isMatch: boolean; displayWord: string } {
+  if (w1 === w2) {
+    return { isMatch: true, displayWord: w1 }
+  }
+
+  const minLen = Math.min(w1.length, w2.length)
+  const maxLen = Math.max(w1.length, w2.length)
+  const dist = levenshteinDistance(w1, w2)
+
+  // Kata sangat pendek (<= 3 karakter, misal "dan", "tea"): harus persis sama
+  if (minLen <= 3) {
+    return { isMatch: false, displayWord: '' }
+  }
+
+  // Kata sedang (4 - 6 karakter): toleransi 1 karakter typo (misal "kopken" vs "kopkenn")
+  if (minLen >= 4 && dist === 1) {
+    return { isMatch: true, displayWord: `${w1} ≈ ${w2}` }
+  }
+
+  // Kata panjang (>= 7 karakter): toleransi typo hingga 2 karakter atau kemiripan >= 75%
+  // Contoh: "khopkenn" (8) vs "kopkenn" (7) -> dist 1 -> cocok!
+  // "starbuks" vs "starbucks" -> cocok!
+  if (minLen >= 7 && (dist <= 2 || (1 - dist / maxLen >= 0.75))) {
+    return { isMatch: true, displayWord: `${w1} ≈ ${w2}` }
+  }
+
+  return { isMatch: false, displayWord: '' }
+}
+
+/**
+ * Normalisasi nama tempat untuk perbandingan kata (lowercase, hapus simbol selain alfanumerik)
+ */
+export function normalizePlaceName(name: string): string[] {
+  if (!name) return []
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 0)
+}
+
+/**
+ * Mendeteksi apakah nama tempat baru memiliki kemiripan kata (word overlap) atau typo ejaan dengan tempat yang sudah ada.
+ * Kriteria kemiripan:
+ * 1. Typo ejaan nama penuh (misal: "Khopkenn" vs "Kopkenn" beda 1 huruf 'h' = 88% kemiripan)
+ * 2. Overlap kata >= 60% (contoh: "Kopi Titik Koma Dago" vs "Kopi Titik Koma" = 75%, "Kolektif Coworking" vs "Kolektif Coworking Space" = 66.7%)
+ * 3. Kesamaan nama brand 2 kata dengan 1 kata sama (50%, contoh: "Starbucks Sudirman" vs "Starbucks Kuningan")
+ * 4. Tidak memicu warning jika overlap < 50% dan tidak ada typo (contoh: "Ruang Baca Santai" vs "Ruang Seduh & Kerja" = 33%)
+ */
+export function findSimilarPlace(
+  newName: string,
+  existingPlaces: Place[],
+  excludePlaceId?: string
+): SimilarPlaceMatch {
+  const cleanNew = normalizePlaceName(newName)
+  if (cleanNew.length === 0) {
+    return {
+      isSimilar: false,
+      matchedPlace: null,
+      similarityPercent: 0,
+      matchedWords: [],
+      totalCandidateWords: 0,
+      totalExistingWords: 0,
+      message: '',
+    }
+  }
+
+  const rawNew = cleanNew.join(' ')
+  let highestScore = 0
+  let mostSimilarPlace: Place | null = null
+  let bestMatchedWords: string[] = []
+  let bestExistingLen = 0
+
+  for (const place of existingPlaces) {
+    if (excludePlaceId && place.id === excludePlaceId) continue
+
+    const cleanExisting = normalizePlaceName(place.name)
+    if (cleanExisting.length === 0) continue
+
+    const rawExisting = cleanExisting.join(' ')
+
+    // 1. Cek kemiripan string penuh (Levenshtein — mendeteksi typo seperti "Khopkenn" vs "Kopkenn")
+    const fullSimilarity = stringSimilarity(rawNew, rawExisting)
+    const fullScore = Math.round(fullSimilarity * 100)
+
+    // 2. Cek kesamaan kata demi kata (termasuk toleransi typo kata)
+    const matchedWordsList: string[] = []
+    let matchCount = 0
+
+    for (const wNew of cleanNew) {
+      for (const wExisting of cleanExisting) {
+        const fuzzy = isFuzzyWordMatch(wNew, wExisting)
+        if (fuzzy.isMatch) {
+          matchCount++
+          matchedWordsList.push(fuzzy.displayWord)
+          break // Pasangkan 1 kata baru dengan 1 kata existing
+        }
+      }
+    }
+
+    const maxLen = Math.max(cleanNew.length, cleanExisting.length)
+    const minLen = Math.min(cleanNew.length, cleanExisting.length)
+
+    const wordOverlapRatio = matchCount / maxLen
+    const minOverlapRatio = matchCount / minLen
+    const wordScore = Math.round(Math.max(wordOverlapRatio, minOverlapRatio) * 100)
+
+    // Kriteria deteksi:
+    // A. Kemiripan string penuh >= 75% (contoh: "Khopkenn" vs "Kopkenn" beda 1 huruf = 88%)
+    // B. Word overlap >= 60% (contoh: 3 dari 4 kata, 2 dari 3 kata)
+    // C. Nama pendek 2 kata yang memiliki 1 kata sama/mirip (50%, contoh: "Starbucks Sudirman" vs "Starbucks Kuningan")
+    const isFullStringMatch = fullSimilarity >= 0.75
+    const isWordOverlapMatch = wordOverlapRatio >= 0.6 || (minOverlapRatio >= 0.5 && minLen <= 2)
+
+    if (isFullStringMatch || isWordOverlapMatch) {
+      // Hitung skor akhir yang paling representatif
+      let effectiveScore = wordScore
+      if (isFullStringMatch && minLen === 1) {
+        effectiveScore = fullScore
+      } else {
+        effectiveScore = Math.max(fullScore, wordScore)
+      }
+
+      if (effectiveScore > highestScore) {
+        highestScore = effectiveScore
+        mostSimilarPlace = place
+        bestMatchedWords =
+          matchedWordsList.length > 0
+            ? Array.from(new Set(matchedWordsList))
+            : [rawNew !== rawExisting ? `${rawNew} ≈ ${rawExisting}` : rawNew]
+        bestExistingLen = cleanExisting.length
+      }
+    }
+  }
+
+  if (mostSimilarPlace && highestScore > 0) {
+    return {
+      isSimilar: true,
+      matchedPlace: mostSimilarPlace,
+      similarityPercent: highestScore,
+      matchedWords: bestMatchedWords,
+      totalCandidateWords: cleanNew.length,
+      totalExistingWords: bestExistingLen,
+      message: `Peringatan: Nama mirip dengan tempat terdaftar "${mostSimilarPlace.name}" (${highestScore}% kesamaan ejaan/kata)`,
+    }
+  }
+
+  return {
+    isSimilar: false,
+    matchedPlace: null,
+    similarityPercent: 0,
+    matchedWords: [],
+    totalCandidateWords: cleanNew.length,
+    totalExistingWords: 0,
+    message: '',
+  }
+}
+
 /**
  * Mencari tempat di data fallback berdasarkan full UUID, short ID, angka urutan (1-5), atau nama
  */
