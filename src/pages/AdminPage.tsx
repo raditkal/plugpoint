@@ -137,8 +137,8 @@ export const AdminPage: React.FC = () => {
   const openReportsCount = reports.filter((r) => r.status === 'open').length
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] py-10 px-4 sm:px-6 lg:px-8 text-[#382E2B]">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#FAF6F0] py-6 sm:py-10 px-3 sm:px-6 lg:px-8 text-[#382E2B]">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Navigasi Balik */}
         <Link
           to="/"
@@ -149,30 +149,30 @@ export const AdminPage: React.FC = () => {
         </Link>
 
         {/* Header Panel */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EFE7DE] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-[#FAF2EB] text-[#C86D51] flex items-center justify-center shadow-xs">
-              <ShieldCheck className="w-6 h-6" />
+        <div className="bg-white rounded-3xl p-5 sm:p-8 border border-[#EFE7DE] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-3.5">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#FAF2EB] text-[#C86D51] flex items-center justify-center shadow-xs shrink-0">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black text-[#2D231E]">Panel Moderasi Admin</h1>
-                <span className="text-xs bg-[#FAF2EB] text-[#C86D51] px-2.5 py-0.5 rounded-full font-bold border border-[#F0D5C3]">
-                  Admin Mode
+                <h1 className="text-xl sm:text-2xl font-black text-[#2D231E]">Panel Moderasi Admin</h1>
+                <span className="text-[10px] sm:text-xs bg-[#FAF2EB] text-[#C86D51] px-2 py-0.5 rounded-full font-bold border border-[#F0D5C3]">
+                  Admin
                 </span>
               </div>
-              <p className="text-xs text-[#7A6B63] mt-0.5">
+              <p className="text-[11px] sm:text-xs text-[#7A6B63] mt-0.5">
                 Verifikasi kualitas data tempat dan tangani laporan komunitas Plugpoint
               </p>
             </div>
           </div>
 
           {/* Tab Navigasi */}
-          <div className="flex items-center gap-2 bg-[#F5ECE1] p-1.5 rounded-2xl border border-[#E8DFD3]">
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-[#F5ECE1] p-1.5 rounded-2xl border border-[#E8DFD3] w-full sm:w-auto overflow-x-auto no-scrollbar">
             <button
               type="button"
               onClick={() => setActiveTab('places')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'places'
                   ? 'bg-white text-[#2D231E] shadow-sm'
                   : 'text-[#7A6B63] hover:text-[#2D231E]'
@@ -190,7 +190,7 @@ export const AdminPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('reports')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'reports'
                   ? 'bg-white text-[#2D231E] shadow-sm'
                   : 'text-[#7A6B63] hover:text-[#2D231E]'
@@ -211,23 +211,23 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'places' && (
           <div className="space-y-4">
             {/* Filter Bar Tempat */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-[#EFE7DE] shadow-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#7A6B63] mr-1">Status:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-3.5 sm:p-4 rounded-3xl border border-[#EFE7DE] shadow-xs">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0 w-full sm:w-auto">
+                <span className="text-xs font-bold text-[#7A6B63] mr-1 shrink-0">Status:</span>
                 {(['pending', 'approved', 'rejected', 'all'] as const).map(
                   (status) => (
                     <button
                       key={status}
                       type="button"
                       onClick={() => setPlaceFilter(status)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold capitalize transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold capitalize transition-all cursor-pointer shrink-0 ${
                         placeFilter === status
                           ? 'bg-[#382E2B] text-white shadow-xs'
                           : 'bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3] border border-[#E8DFD3]'
                       }`}
                     >
                       {status === 'pending'
-                        ? 'Menunggu (Pending)'
+                        ? 'Menunggu'
                         : status === 'approved'
                         ? 'Disetujui'
                         : status === 'rejected'
@@ -241,10 +241,10 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={fetchPlaces}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors cursor-pointer self-end sm:self-auto shrink-0"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isPlacesLoading ? 'animate-spin' : ''}`} />
-                <span>Segarkan</span>
+                <span className="hidden sm:inline">Segarkan</span>
               </button>
             </div>
 

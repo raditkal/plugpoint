@@ -61,8 +61,8 @@ export const MyPlacesPage: React.FC = () => {
   const rejectedCount = places.filter((p) => p.status === 'rejected').length
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] py-10 px-4 sm:px-6 lg:px-8 text-[#382E2B]">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#FAF6F0] py-6 sm:py-10 px-3 sm:px-6 lg:px-8 text-[#382E2B]">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Navigasi Kembali */}
         <Link
           to="/"
@@ -73,11 +73,11 @@ export const MyPlacesPage: React.FC = () => {
         </Link>
 
         {/* Header Section */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EFE7DE] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl p-5 sm:p-8 border border-[#EFE7DE] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-xl">☕</span>
-              <h1 className="text-2xl sm:text-3xl font-black text-[#2D231E]">
+              <h1 className="text-xl sm:text-3xl font-black text-[#2D231E]">
                 Koleksi & Kontribusi Saya
               </h1>
             </div>
@@ -88,7 +88,7 @@ export const MyPlacesPage: React.FC = () => {
 
           <Link
             to="/add-place"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold shadow-sm transition-all shrink-0"
+            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold shadow-sm transition-all shrink-0 w-full sm:w-auto justify-center"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Tempat Baru</span>
@@ -96,17 +96,17 @@ export const MyPlacesPage: React.FC = () => {
         </div>
 
         {/* Tab Navigasi Utama: Kontribusi vs Favorit */}
-        <div className="flex items-center gap-2 bg-[#F2ECE3] p-1.5 rounded-2xl border border-[#DFD3C3] w-fit shadow-2xs">
+        <div className="flex items-center gap-1.5 sm:gap-2 bg-[#F2ECE3] p-1.5 rounded-2xl border border-[#DFD3C3] w-full sm:w-fit shadow-2xs overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setSearchParams({})}
-            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'submissions'
                 ? 'bg-white text-[#2D231E] shadow-xs'
                 : 'text-[#7A6B63] hover:text-[#2D231E]'
             }`}
           >
-            <Coffee className="w-4 h-4 text-[#C86D51]" />
+            <Coffee className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C86D51]" />
             <span>Kontribusi Saya</span>
             <span className="px-2 py-0.5 rounded-full text-[10px] bg-[#FAF2EB] text-[#C86D51] font-bold">
               {places.length}
@@ -116,13 +116,13 @@ export const MyPlacesPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setSearchParams({ tab: 'favorites' })}
-            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'favorites'
                 ? 'bg-white text-[#2D231E] shadow-xs'
                 : 'text-[#7A6B63] hover:text-[#2D231E]'
             }`}
           >
-            <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+            <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500 fill-rose-500" />
             <span>Tempat Favorit</span>
             <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-50 text-rose-600 font-bold border border-rose-100">
               {favorites.length}
@@ -134,14 +134,14 @@ export const MyPlacesPage: React.FC = () => {
         {activeTab === 'submissions' && (
           <div className="space-y-4">
             {/* Filter Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-[#EFE7DE] shadow-xs">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold text-[#7A6B63] mr-1">Status:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-3.5 sm:p-4 rounded-3xl border border-[#EFE7DE] shadow-xs">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0 w-full sm:w-auto">
+                <span className="text-xs font-bold text-[#7A6B63] mr-1 shrink-0">Status:</span>
 
                 <button
                   type="button"
                   onClick={() => setFilterStatus('all')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     filterStatus === 'all'
                       ? 'bg-[#382E2B] text-white shadow-xs'
                       : 'bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3] border border-[#E8DFD3]'
@@ -153,7 +153,7 @@ export const MyPlacesPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFilterStatus('pending')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     filterStatus === 'pending'
                       ? 'bg-amber-500 text-white shadow-xs'
                       : 'bg-[#FAF7F2] text-amber-700 hover:bg-amber-50 border border-amber-200'
@@ -165,7 +165,7 @@ export const MyPlacesPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFilterStatus('approved')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     filterStatus === 'approved'
                       ? 'bg-emerald-600 text-white shadow-xs'
                       : 'bg-[#FAF7F2] text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
@@ -178,7 +178,7 @@ export const MyPlacesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterStatus('needs_revision')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 ${
                       filterStatus === 'needs_revision'
                         ? 'bg-orange-500 text-white shadow-xs'
                         : 'bg-[#FAF7F2] text-orange-700 hover:bg-orange-50 border border-orange-200'
@@ -192,7 +192,7 @@ export const MyPlacesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterStatus('rejected')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 ${
                       filterStatus === 'rejected'
                         ? 'bg-rose-500 text-white shadow-xs'
                         : 'bg-[#FAF7F2] text-rose-700 hover:bg-rose-50 border border-rose-200'
@@ -206,7 +206,7 @@ export const MyPlacesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={fetchUserPlaces}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors cursor-pointer self-end sm:self-auto shrink-0"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 <span className="hidden sm:inline">Segarkan</span>

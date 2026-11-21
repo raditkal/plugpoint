@@ -57,3 +57,12 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #D4C4B1;
 }
+
+/* Hide scrollbar for smooth touch-scrolling pills on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

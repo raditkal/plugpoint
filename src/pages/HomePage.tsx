@@ -29,9 +29,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
   return (
     <div className="min-h-screen pb-20 bg-[#FAF6F0]">
       {/* HERO SECTION - Warm, Aesthetic, Playful Cafe Vibe */}
-      <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-24 border-b border-[#EFE7DE]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF0E6] border border-[#ECD9C9] text-xs font-bold text-[#8C5E48] mx-auto shadow-2xs">
+      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-16 sm:pb-20 border-b border-[#EFE7DE]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#FAF0E6] border border-[#ECD9C9] text-[11px] sm:text-xs font-bold text-[#8C5E48] mx-auto shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-[#C86D51] animate-pulse"></span>
             <span>Direktori Spot Nugas & Kafe Indralaya (Sekitar UNSRI)</span>
           </div>
@@ -47,12 +47,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
             </span>
           </h1>
 
-          <p className="text-xs sm:text-sm text-[#7A6B63] max-w-lg mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#7A6B63] max-w-lg mx-auto leading-relaxed px-2">
             Temukan tempat nugas dengan Wi-Fi kencang, colokan melimpah, dan suasana tenang di area Simpang Timbangan, Gang Lampung, hingga Tanjung Senai.
           </p>
 
           {/* Search Bar & Quick Filters */}
-          <div className="pt-4">
+          <div className="pt-2 sm:pt-4">
             <SearchBar
               filterOptions={filterOptions}
               onFilterChange={setFilterOptions}
@@ -63,20 +63,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
       </section>
 
       {/* MAIN DIRECTORY CONTENT */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 space-y-14">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-8 sm:pt-12 space-y-10 sm:space-y-14">
 
         {/* SECTION: SEMUA DAFTAR TEMPAT */}
-        <section className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#F0EAE1] border border-[#E3D7C8] flex items-center justify-center text-[#5C4A3E]">
-                <Compass className="w-5 h-5" />
+        <section className="space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-[#F0EAE1] border border-[#E3D7C8] flex items-center justify-center text-[#5C4A3E] shrink-0">
+                <Compass className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-[#2D231E]">
+                <h2 className="text-xl sm:text-2xl font-black text-[#2D231E]">
                   Jelajahi Semua Tempat
                 </h2>
-                <p className="text-xs text-[#7A6B63]">
+                <p className="text-[11px] sm:text-xs text-[#7A6B63]">
                   Pilih spot favoritmu untuk belajar, meeting santai, atau ngerjain tugas
                 </p>
               </div>
@@ -85,7 +85,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
             <button
               type="button"
               onClick={() => fetchPlaces(filterOptions)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors shrink-0"
               title="Perbarui Data"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />

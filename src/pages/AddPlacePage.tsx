@@ -199,33 +199,34 @@ export const AddPlacePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] py-10 px-4 sm:px-6 lg:px-8 text-[#382E2B]">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#FAF6F0] py-6 sm:py-10 px-3 sm:px-6 lg:px-8 text-[#382E2B]">
+      <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
         {/* Navigasi Atas */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#7A6B63] hover:text-[#2D231E] transition-colors"
+            className="inline-flex items-center gap-1.5 sm:gap-2 text-xs font-bold text-[#7A6B63] hover:text-[#2D231E] transition-colors"
           >
             <ArrowLeft className="w-4 h-4 text-[#C86D51]" />
-            Kembali ke Direktori
+            <span className="hidden sm:inline">Kembali ke Direktori</span>
+            <span className="sm:hidden">Kembali</span>
           </Link>
 
           <Link
             to="/my-places"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-[#FAF7F2] text-xs font-bold text-[#5C4A3E] border border-[#DFD3C3] shadow-2xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-white hover:bg-[#FAF7F2] text-xs font-bold text-[#5C4A3E] border border-[#DFD3C3] shadow-2xs transition-colors shrink-0"
           >
             <Clock3 className="w-3.5 h-3.5 text-[#C86D51]" />
-            <span>Lihat Tempat Saya</span>
+            <span>Tempat Saya</span>
           </Link>
         </div>
 
         {/* Card Header */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EFE7DE] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl p-5 sm:p-8 border border-[#EFE7DE] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-xl">☕</span>
-              <h1 className="text-2xl sm:text-3xl font-black text-[#2D231E]">
+              <h1 className="text-xl sm:text-3xl font-black text-[#2D231E]">
                 Rekomendasikan Tempat
               </h1>
             </div>
@@ -244,13 +245,13 @@ export const AddPlacePage: React.FC = () => {
 
         {/* Notifikasi Sukses */}
         {isSuccess ? (
-          <div className="bg-white rounded-3xl p-8 border border-[#EFE7DE] shadow-sm text-center space-y-5 animate-in fade-in">
-            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-              <CheckCircle2 className="w-8 h-8" />
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EFE7DE] shadow-sm text-center space-y-4 sm:space-y-5 animate-in fade-in">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+              <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
 
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black text-[#2D231E]">
+            <div className="space-y-1.5 sm:space-y-2">
+              <h2 className="text-xl sm:text-2xl font-black text-[#2D231E]">
                 {isTrustedContributor || isAdmin ? 'Tempat Berhasil Dipublikasikan! 🎉' : 'Pengajuan Berhasil Dikirim! ☕'}
               </h2>
               <p className="text-xs sm:text-sm text-[#7A6B63] max-w-md mx-auto leading-relaxed">
@@ -260,24 +261,24 @@ export const AddPlacePage: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 pt-3">
               {createdPlaceId && (isTrustedContributor || isAdmin) && (
                 <Link
                   to={`/places/${getShortId(createdPlaceId)}`}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold shadow-sm transition-all"
+                  className="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold shadow-sm transition-all text-center"
                 >
                   Lihat Halaman Tempat
                 </Link>
               )}
               <Link
                 to="/my-places"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3]"
+                className="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3] text-center"
               >
                 Lihat Daftar Tempat Saya
               </Link>
               <Link
                 to="/"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#382E2B] hover:bg-[#251D1A] text-white text-xs font-bold transition-all"
+                className="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-full bg-[#382E2B] hover:bg-[#251D1A] text-white text-xs font-bold transition-all text-center"
               >
                 Kembali ke Beranda
               </Link>
@@ -291,7 +292,7 @@ export const AddPlacePage: React.FC = () => {
                   setNotes('')
                   setWifiSpeed('')
                 }}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3]"
+                className="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3] text-center"
               >
                 Tambah Tempat Lainnya
               </button>
@@ -299,9 +300,9 @@ export const AddPlacePage: React.FC = () => {
           </div>
         ) : (
           /* Main Form */
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {errorMsg && (
-              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
                 <span>{errorMsg}</span>
               </div>
@@ -603,25 +604,25 @@ export const AddPlacePage: React.FC = () => {
             </div>
 
             {/* SEKSI 3: FASILITAS KERJA (WI-FI & COLOKAN) */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-5">
+            <div className="bg-white rounded-3xl p-4 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-4 sm:space-y-5">
               <h2 className="text-sm font-black text-[#2D231E] flex items-center gap-2 border-b border-[#F2E8DC] pb-3">
                 <Wifi className="w-4 h-4 text-[#C86D51]" />
                 <span>3. Fasilitas Wi-Fi & Kebutuhan Daya</span>
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                 {/* Rating Wi-Fi */}
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-[#4A3B32]">
                     Kualitas Koneksi Wi-Fi (1 - 5)
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setWifiRating(star)}
-                        className={`w-10 h-10 rounded-2xl text-xs font-extrabold transition-all ${
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-extrabold transition-all cursor-pointer ${
                           wifiRating >= star
                             ? 'bg-[#C86D51] text-white shadow-xs'
                             : 'bg-[#F2ECE3] text-[#7A6B63] hover:bg-[#E8DFD3]'
@@ -631,7 +632,7 @@ export const AddPlacePage: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                  <p className="text-[11px] text-[#A6978C]">
+                  <p className="text-[10px] sm:text-[11px] text-[#A6978C]">
                     {wifiRating >= 4
                       ? '⚡ Kencang, stabil untuk video call & upload besar'
                       : wifiRating === 3
@@ -654,7 +655,7 @@ export const AddPlacePage: React.FC = () => {
                     placeholder="Contoh: 50 atau 100"
                     className="w-full px-4 py-2.5 rounded-2xl bg-[#FAF7F2] border border-[#DFD3C3] text-xs text-[#382E2B] focus:outline-none focus:border-[#C86D51] transition-colors"
                   />
-                  <p className="text-[11px] text-[#A6978C]">Berdasarkan hasil speedtest jika pernah dicoba</p>
+                  <p className="text-[10px] sm:text-[11px] text-[#A6978C]">Berdasarkan hasil speedtest jika pernah dicoba</p>
                 </div>
 
                 {/* Ketersediaan Colokan */}
@@ -663,47 +664,47 @@ export const AddPlacePage: React.FC = () => {
                     <Zap className="w-3.5 h-3.5 text-[#C86D51]" />
                     <span>Ketersediaan Stopkontak / Colokan Listrik</span>
                   </label>
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
                     <button
                       type="button"
                       onClick={() => setOutletLevel('many')}
-                      className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                      className={`p-2 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                         outletLevel === 'many'
                           ? 'border-[#C86D51] bg-[#FAF2EB] text-[#7A4B3A] font-bold'
                           : 'border-[#E8DFD3] bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3]'
                       }`}
                     >
                       <span className="block text-sm mb-0.5">🔌🔌🔌</span>
-                      <span className="text-xs">Melimpah</span>
-                      <span className="block text-[10px] text-[#A6978C] mt-0.5">Hampir tiap meja</span>
+                      <span className="text-[11px] sm:text-xs">Melimpah</span>
+                      <span className="block text-[9px] sm:text-[10px] text-[#A6978C] mt-0.5 line-clamp-1 sm:line-clamp-none">Hampir tiap meja</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setOutletLevel('few')}
-                      className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                      className={`p-2 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                         outletLevel === 'few'
                           ? 'border-[#C86D51] bg-[#FAF2EB] text-[#7A4B3A] font-bold'
                           : 'border-[#E8DFD3] bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3]'
                       }`}
                     >
                       <span className="block text-sm mb-0.5">🔌</span>
-                      <span className="text-xs">Terbatas</span>
-                      <span className="block text-[10px] text-[#A6978C] mt-0.5">Hanya spot tertentu</span>
+                      <span className="text-[11px] sm:text-xs">Terbatas</span>
+                      <span className="block text-[9px] sm:text-[10px] text-[#A6978C] mt-0.5 line-clamp-1 sm:line-clamp-none">Spot tertentu</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setOutletLevel('unknown')}
-                      className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                      className={`p-2 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                         outletLevel === 'unknown'
                           ? 'border-[#C86D51] bg-[#FAF2EB] text-[#7A4B3A] font-bold'
                           : 'border-[#E8DFD3] bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3]'
                       }`}
                     >
                       <span className="block text-sm mb-0.5">❓</span>
-                      <span className="text-xs">Belum Tahu</span>
-                      <span className="block text-[10px] text-[#A6978C] mt-0.5">Perlu konfirmasi</span>
+                      <span className="text-[11px] sm:text-xs">Belum Tahu</span>
+                      <span className="block text-[9px] sm:text-[10px] text-[#A6978C] mt-0.5 line-clamp-1 sm:line-clamp-none">Perlu dicek</span>
                     </button>
                   </div>
                 </div>
@@ -714,47 +715,47 @@ export const AddPlacePage: React.FC = () => {
                     <Volume2 className="w-3.5 h-3.5 text-[#C86D51]" />
                     <span>Suasana Tempat (Noise Level)</span>
                   </label>
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
                     <button
                       type="button"
                       onClick={() => setNoiseLevel('quiet')}
-                      className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                      className={`p-2 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                         noiseLevel === 'quiet'
                           ? 'border-[#C86D51] bg-[#FAF2EB] text-[#7A4B3A] font-bold'
                           : 'border-[#E8DFD3] bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3]'
                       }`}
                     >
                       <span className="block text-sm mb-0.5">🌿</span>
-                      <span className="text-xs">Sunyi & Tenang</span>
-                      <span className="block text-[10px] text-[#A6978C] mt-0.5">Cocok untuk fokus</span>
+                      <span className="text-[11px] sm:text-xs">Sunyi Tenang</span>
+                      <span className="block text-[9px] sm:text-[10px] text-[#A6978C] mt-0.5 line-clamp-1 sm:line-clamp-none">Fokus nugas</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setNoiseLevel('moderate')}
-                      className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                      className={`p-2 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                         noiseLevel === 'moderate'
                           ? 'border-[#C86D51] bg-[#FAF2EB] text-[#7A4B3A] font-bold'
                           : 'border-[#E8DFD3] bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3]'
                       }`}
                     >
                       <span className="block text-sm mb-0.5">☕</span>
-                      <span className="text-xs">Ramai Santai</span>
-                      <span className="block text-[10px] text-[#A6978C] mt-0.5">Obrolan ringan</span>
+                      <span className="text-[11px] sm:text-xs">Ramai Santai</span>
+                      <span className="block text-[9px] sm:text-[10px] text-[#A6978C] mt-0.5 line-clamp-1 sm:line-clamp-none">Obrolan ringan</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setNoiseLevel('noisy')}
-                      className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                      className={`p-2 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                         noiseLevel === 'noisy'
                           ? 'border-[#C86D51] bg-[#FAF2EB] text-[#7A4B3A] font-bold'
                           : 'border-[#E8DFD3] bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3]'
                       }`}
                     >
                       <span className="block text-sm mb-0.5">📢</span>
-                      <span className="text-xs">Cukup Ramai</span>
-                      <span className="block text-[10px] text-[#A6978C] mt-0.5">Musik keras / ramai</span>
+                      <span className="text-[11px] sm:text-xs">Cukup Ramai</span>
+                      <span className="block text-[9px] sm:text-[10px] text-[#A6978C] mt-0.5 line-clamp-1 sm:line-clamp-none">Musik / ramai</span>
                     </button>
                   </div>
                 </div>
@@ -762,7 +763,7 @@ export const AddPlacePage: React.FC = () => {
             </div>
 
             {/* SEKSI 4: OPERASIONAL & CATATAN */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-4">
+            <div className="bg-white rounded-3xl p-4 sm:p-7 border border-[#EFE7DE] shadow-sm space-y-4">
               <h2 className="text-sm font-black text-[#2D231E] flex items-center gap-2 border-b border-[#F2E8DC] pb-3">
                 <Clock className="w-4 h-4 text-[#C86D51]" />
                 <span>4. Jam Operasional & Catatan Tambahan</span>

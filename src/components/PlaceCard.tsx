@@ -79,9 +79,9 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
       : 'Wi-Fi Cepat'
 
   return (
-    <div className="w-full max-w-sm sm:max-w-none bg-cafe-card rounded-3xl overflow-hidden shadow-cozy border-2 border-[#F3EBE1] hover:shadow-cozy-hover transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between">
+    <div className="w-full bg-cafe-card rounded-3xl overflow-hidden shadow-cozy border-2 border-[#F3EBE1] hover:shadow-cozy-hover transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between">
       {/* Header Image Wrapper */}
-      <div className="relative h-56 sm:h-60 overflow-hidden group">
+      <div className="relative h-48 sm:h-56 overflow-hidden group">
         <img
           src={getImageSource()}
           onError={(e) => {
@@ -125,12 +125,12 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
       </div>
 
       {/* Content Section */}
-      <div className="p-5 sm:p-6 flex flex-col gap-4 flex-1 justify-between">
-        <div className="flex flex-col gap-4">
+      <div className="p-4 sm:p-6 flex flex-col gap-3.5 sm:gap-4 flex-1 justify-between">
+        <div className="flex flex-col gap-3 sm:gap-4">
           {/* Title & Wi-Fi Speed Row */}
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h2 className="heading-font text-2xl font-bold text-cafe-text tracking-wide leading-snug truncate">
+              <h2 className="heading-font text-xl sm:text-2xl font-bold text-cafe-text tracking-wide leading-snug truncate">
                 {place.name}
               </h2>
               {/* Location */}
