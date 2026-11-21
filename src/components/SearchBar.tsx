@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, X, Wifi, Zap, Volume2, Moon } from 'lucide-react'
+import { Search, X, Wifi, Zap, Volume2, Moon, Sparkles, Clock, Heart } from 'lucide-react'
 import type { PlaceFilterOptions } from '../types/place'
 
 interface SearchBarProps {
@@ -125,15 +125,67 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           filterOptions.searchQuery) && (
             <button
               type="button"
-              onClick={() => onFilterChange({})}
+              onClick={() => onFilterChange({ sortBy: filterOptions.sortBy })}
               className="text-xs text-[#C86D51] hover:underline font-semibold px-2 py-1"
             >
               Hapus Filter
             </button>
           )}
+      </div>
+
+      {/* Sort Filter Bar (Paling Baru vs Paling Banyak Favorit) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#EDE4D8]/80">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-[#8C6D58] flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#C86D51]" />
+            Urutan:
+          </span>
+          <div className="inline-flex rounded-full bg-[#EFE7DE] p-1 border border-[#E2D5C5]">
+            <button
+              type="button"
+              onClick={() =>
+                onFilterChange({
+                  ...filterOptions,
+                  sortBy: 'newest',
+                })
+              }
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                filterOptions.sortBy === 'newest' || !filterOptions.sortBy
+                  ? 'bg-white text-[#2D231E] shadow-xs'
+                  : 'text-[#7A6B63] hover:text-[#2D231E]'
+              }`}
+            >
+              <Clock className="w-3 h-3 text-[#C86D51]" />
+              Paling Baru
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                onFilterChange({
+                  ...filterOptions,
+                  sortBy: 'most_popular',
+                })
+              }
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                filterOptions.sortBy === 'most_popular'
+                  ? 'bg-[#C86D51] text-white shadow-xs'
+                  : 'text-[#7A6B63] hover:text-[#2D231E]'
+              }`}
+            >
+              <Heart
+                className={`w-3 h-3 ${
+                  filterOptions.sortBy === 'most_popular'
+                    ? 'fill-white text-white'
+                    : 'text-[#C86D51]'
+                }`}
+              />
+              Paling Banyak Favorit
+            </button>
+          </div>
+        </div>
 
         {/* Counter Total Tempat */}
-        <span className="sm:ml-auto text-[11px] font-bold text-[#8C6D58] bg-[#F4ECE1] px-3 py-1 rounded-full border border-[#E5DACD]">
+        <span className="text-[11px] font-bold text-[#8C6D58] bg-[#F4ECE1] px-3 py-1.5 rounded-full border border-[#E5DACD]">
           {totalResults} tempat ditemukan
         </span>
       </div>

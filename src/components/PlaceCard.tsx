@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Wifi, Clock, MapPin, ArrowRight, Heart } from 'lucide-react'
+import { Wifi, Clock, MapPin, ArrowRight, Heart, Calendar } from 'lucide-react'
 import type { Place } from '../types/place'
-import { getShortId } from '../services/places'
+import { getShortId, formatAddedDate, formatFullDate } from '../services/places'
 import { useFavorites } from '../context/FavoritesContext'
 
 interface PlaceCardProps {
@@ -23,6 +23,7 @@ const CAFE_IMAGES = [
 export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) => {
   const { isFavorite, toggleFavorite } = useFavorites()
   const favorite = isFavorite(place.id)
+  const displayFavoritesCount = (place.favorites_count || 0) + (favorite ? 1 : 0)
 
   // Dapatkan URL gambar berdasarkan place atau fallback variatif
   const getImageSource = () => {
@@ -102,19 +103,24 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
           <span>{closingHour}</span>
         </div>
 
-        {/* Favorite / Heart Button (Top Left Cute Accent) */}
+        {/* Favorite / Heart Button with Count (Top Left Cute Accent Pill) */}
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation()
             toggleFavorite(place.id)
           }}
-          className={`absolute top-3.5 left-3.5 w-9 h-9 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 active:scale-95 cursor-pointer ${
-            favorite ? 'text-rose-500 scale-105' : 'text-[#8C7A70] hover:text-rose-500'
+          className={`absolute top-3.5 left-3.5 h-8 px-2.5 bg-white/95 backdrop-blur-md rounded-full flex items-center gap-1.5 transition-all shadow-sm hover:scale-105 active:scale-95 cursor-pointer border ${
+            favorite
+              ? 'text-rose-600 border-rose-200 bg-rose-50/90'
+              : 'text-[#6E5D53] border-white/60 hover:text-rose-600 hover:border-rose-200'
           }`}
           title={favorite ? 'Hapus dari favorit' : 'Simpan ke favorit'}
         >
-          <Heart className={`w-4 h-4 transition-transform ${favorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+          <Heart className={`w-3.5 h-3.5 transition-transform ${favorite ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
+          <span className="text-xs font-bold font-sans">
+            {displayFavoritesCount}
+          </span>
         </button>
       </div>
 
@@ -166,8 +172,8 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
             ))}
           </div>
 
-          {/* Kontributor Info */}
-          <div className="flex items-center justify-between text-[11px] text-[#7A6B63] pt-1">
+          {/* Kontributor Info & Tanggal Ditambahkan */}
+          <div className="flex items-center justify-between text-[11px] text-[#7A6B63] pt-1 gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
               <div className="w-5 h-5 rounded-full bg-[#EFE4D6] text-[#8C6D58] flex items-center justify-center font-bold text-[10px] shrink-0 border border-[#DFD3C3]">
                 {(place.profiles?.display_name || 'K').charAt(0).toUpperCase()}
@@ -180,14 +186,23 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, onDetailClick }) =>
               </span>
             </div>
 
-            {place.profiles?.contributor_status === 'trusted' && (
+            <div className="flex items-center gap-1.5 shrink-0">
+              {place.profiles?.contributor_status === 'trusted' && (
+                <span
+                  className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200"
+                  title="Kontributor Tepercaya"
+                >
+                  ✓ Trusted
+                </span>
+              )}
               <span
-                className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0"
-                title="Kontributor Tepercaya"
+                className="text-[10px] text-[#7D6B62] font-medium flex items-center gap-1 bg-[#F5ECE1] px-2 py-0.5 rounded-full border border-[#EBE0D3]"
+                title={place.created_at ? `Ditambahkan pada ${formatFullDate(place.created_at)}` : undefined}
               >
-                ✓ Trusted
+                <Calendar className="w-2.5 h-2.5 text-[#A8988C]" />
+                <span>{formatAddedDate(place.created_at)}</span>
               </span>
-            )}
+            </div>
           </div>
         </div>
 

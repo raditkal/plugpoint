@@ -15,7 +15,8 @@ import {
   Flag,
   FileCheck2,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Calendar
 } from 'lucide-react'
 import {
   getAdminPlaces,
@@ -24,7 +25,7 @@ import {
   updateReportStatus,
   type ExtendedReport
 } from '../services/admin'
-import { getShortId } from '../services/places'
+import { getShortId, formatAddedDate, formatFullDate } from '../services/places'
 import type { Place, PlaceStatus, ReportStatus } from '../types/place'
 
 export const AdminPage: React.FC = () => {
@@ -267,11 +268,21 @@ export const AdminPage: React.FC = () => {
                               {place.status}
                             </span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-xs text-[#7A6B63] mt-1">
-                            <MapPin className="w-3.5 h-3.5 text-[#C86D51] shrink-0" />
-                            <span>
-                              {place.area} • {place.address}
-                            </span>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#7A6B63] mt-1">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-[#C86D51] shrink-0" />
+                              <span>
+                                {place.area} • {place.address}
+                              </span>
+                            </div>
+                            <span className="text-[#C5B7AA]">•</span>
+                            <div
+                              className="flex items-center gap-1 text-[11px] text-[#8C7A70]"
+                              title={place.created_at ? `Diajukan pada ${formatFullDate(place.created_at)}` : undefined}
+                            >
+                              <Calendar className="w-3 h-3 text-[#A8988C]" />
+                              <span>Diajukan {formatAddedDate(place.created_at)}</span>
+                            </div>
                           </div>
                         </div>
 

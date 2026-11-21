@@ -11,9 +11,12 @@ import {
   Flag,
   Coffee,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Heart,
+  Calendar
 } from 'lucide-react'
-import { getPlaceById } from '../services/places'
+import { getPlaceById, formatAddedDate, formatFullDate } from '../services/places'
+import { useFavorites } from '../context/FavoritesContext'
 import type { Place } from '../types/place'
 
 // Fallback images cafe aesthetic
@@ -26,6 +29,7 @@ const DETAIL_IMAGES = [
 
 export const PlaceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [place, setPlace] = useState<Place | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [reportModalOpen, setReportModalOpen] = useState(false)
@@ -89,10 +93,13 @@ export const PlaceDetailPage: React.FC = () => {
     ? `${hours.daily.open} - ${hours.daily.close} WIB`
     : 'Buka Setiap Hari'
 
+  const favorite = place ? isFavorite(place.id) : false
+  const displayFavoritesCount = (place?.favorites_count || 0) + (favorite ? 1 : 0)
+
   return (
     <div className="min-h-screen bg-[#FAF6F0] pb-24 text-[#382E2B]">
       {/* Top Navigation Bar */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-4">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between">
         <Link
           to="/"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F2ECE3] hover:bg-[#E8DFD3] text-xs font-bold text-[#4A3B32] transition-colors border border-[#DFD3C3]"
@@ -100,6 +107,21 @@ export const PlaceDetailPage: React.FC = () => {
           <ArrowLeft className="w-4 h-4 text-[#C86D51]" />
           Kembali ke Direktori
         </Link>
+
+        {/* Favorite Button */}
+        <button
+          type="button"
+          onClick={() => toggleFavorite(place.id)}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border ${
+            favorite
+              ? 'bg-rose-50 border-rose-200 text-rose-600'
+              : 'bg-white border-[#DFD3C3] text-[#5C4A3E] hover:border-rose-200 hover:text-rose-600'
+          }`}
+          title={favorite ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+        >
+          <Heart className={`w-4 h-4 ${favorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+          <span>{displayFavoritesCount} Favorit</span>
+        </button>
       </div>
 
       {/* Main Container */}
@@ -119,7 +141,7 @@ export const PlaceDetailPage: React.FC = () => {
                 {place.area || 'Tempat Kerja'}
               </span>
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{place.name}</h1>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-[#F4EDE3]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-[#F4EDE3]">
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-[#F4CDBE] shrink-0" />
                   <span>{place.address}</span>
@@ -127,6 +149,11 @@ export const PlaceDetailPage: React.FC = () => {
                 <span className="opacity-50 hidden sm:inline">•</span>
                 <span className="bg-black/30 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-xs text-[#FAF6F0]">
                   Direkomendasikan oleh <strong className="text-white">{place.profiles?.display_name || 'Komunitas Plugpoint'}</strong>
+                </span>
+                <span className="opacity-50 hidden sm:inline">•</span>
+                <span className="bg-black/30 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-xs text-[#FAF6F0] flex items-center gap-1.5" title={place.created_at ? `Ditambahkan pada ${formatFullDate(place.created_at)}` : undefined}>
+                  <Calendar className="w-3.5 h-3.5 text-[#F4CDBE]" />
+                  <span>Ditambahkan {formatAddedDate(place.created_at)}</span>
                 </span>
               </div>
             </div>
@@ -241,6 +268,42 @@ export const PlaceDetailPage: React.FC = () => {
 
           {/* Right Column (1 Col): Aksi & Lokasi */}
           <div className="space-y-6">
+            {/* Riwayat & Kontributor Tempat */}
+            <div className="bg-white rounded-3xl p-6 border border-[#EFE7DE] shadow-sm space-y-3.5">
+              <h3 className="text-sm font-bold text-[#2D231E] flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#C86D51]" />
+                Riwayat & Kontributor
+              </h3>
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-[#F4EBE1]">
+                  <span className="text-[#8C7A70]">Direkomendasikan oleh</span>
+                  <div className="flex items-center gap-1.5">
+                    <strong className="text-[#2D231E] font-bold">
+                      {place.profiles?.display_name || 'Komunitas Plugpoint'}
+                    </strong>
+                    {place.profiles?.contributor_status === 'trusted' && (
+                      <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        ✓ Trusted
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pb-2 border-b border-[#F4EBE1]">
+                  <span className="text-[#8C7A70]">Kapan ditambahkan</span>
+                  <div className="text-right">
+                    <span className="text-[#2D231E] font-bold block">{formatAddedDate(place.created_at)}</span>
+                    <span className="text-[10px] text-[#A8988C]">{formatFullDate(place.created_at)}</span>
+                  </div>
+                </div>
+                {place.updated_at && place.updated_at !== place.created_at && (
+                  <div className="flex items-center justify-between text-[11px] text-[#8C7A70]">
+                    <span>Terakhir diperbarui</span>
+                    <span>{formatAddedDate(place.updated_at)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Lokasi & Google Maps */}
             <div className="bg-white rounded-3xl p-6 border border-[#EFE7DE] shadow-sm space-y-4">
               <h3 className="text-sm font-bold text-[#2D231E] flex items-center gap-2">

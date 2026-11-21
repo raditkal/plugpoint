@@ -6,6 +6,7 @@ export type Place = Database['public']['Tables']['places']['Row'] & {
     display_name?: string
     contributor_status?: string
   } | null
+  favorites_count?: number
 }
 export type PlaceInsert = Database['public']['Tables']['places']['Insert']
 export type PlaceUpdate = Database['public']['Tables']['places']['Update']
@@ -30,6 +31,7 @@ export interface PlaceFilterOptions {
   manyOutletsOnly?: boolean // outlet_level === 'many'
   quietOnly?: boolean // noise_level === 'quiet'
   openLateOnly?: boolean // buka melewati jam 21:00
+  sortBy?: 'newest' | 'most_popular' // Urutan: Terbaru vs Terpopuler
 }
 
 export type { OutletLevel, NoiseLevel, PlaceStatus, ReportStatus, ReportReason }

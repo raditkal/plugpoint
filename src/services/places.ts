@@ -19,6 +19,7 @@ export const DUMMY_PLACES: Place[] = [
     },
     quiet_hours: '08:00 - 14:00',
     notes: 'Colokan di hampir setiap meja, kursi ergonomis, dan playlist lofi tenang.',
+    favorites_count: 54,
     created_by: null,
     profiles: { display_name: 'Sarah Amalia', contributor_status: 'trusted' },
     status: 'approved',
@@ -42,6 +43,7 @@ export const DUMMY_PLACES: Place[] = [
     },
     quiet_hours: 'Sepanjang hari',
     notes: 'Ada bilik telepon peredam suara untuk meeting online dan free flow kopi.',
+    favorites_count: 89,
     created_by: null,
     profiles: { display_name: 'Dimas Aditya', contributor_status: 'unverified' },
     status: 'approved',
@@ -65,6 +67,7 @@ export const DUMMY_PLACES: Place[] = [
     },
     quiet_hours: '09:00 - 12:00',
     notes: 'Lantai 2 khusus area laptop. Suasana ramai santai saat sore hari.',
+    favorites_count: 36,
     created_by: null,
     profiles: { display_name: 'Rian Pratama', contributor_status: 'trusted' },
     status: 'approved',
@@ -88,6 +91,7 @@ export const DUMMY_PLACES: Place[] = [
     },
     quiet_hours: '13:00 - 18:00',
     notes: 'Suasana sangat sunyi cocok untuk skripsi/membaca. Colokan terbatas di area dinding.',
+    favorites_count: 72,
     created_by: null,
     profiles: { display_name: 'Nadia Putri', contributor_status: 'unverified' },
     status: 'approved',
@@ -111,6 +115,7 @@ export const DUMMY_PLACES: Place[] = [
     },
     quiet_hours: '21:00 - 03:00',
     notes: 'Buka sampai dini hari jam 03.00, colokan per orang ada 2 lubang.',
+    favorites_count: 45,
     created_by: null,
     profiles: { display_name: 'Budi Santoso', contributor_status: 'trusted' },
     status: 'approved',
@@ -173,8 +178,15 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
       }
     }
 
+    const sortedData = [...(data as Place[])]
+    if (options.sortBy === 'most_popular') {
+      sortedData.sort((a, b) => (b.favorites_count || 0) - (a.favorites_count || 0))
+    } else {
+      sortedData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
+
     return {
-      data,
+      data: sortedData,
       isUsingFallback: false,
       error: null
     }
@@ -194,6 +206,67 @@ export async function getPlaces(options: PlaceFilterOptions = {}): Promise<{
 export function getShortId(id: string): string {
   if (!id) return ''
   return id.split('-')[0]
+}
+
+/**
+ * Format tanggal penambahan tempat ke format relatif ramah bahasa Indonesia
+ * (contoh: "Baru saja", "3 jam lalu", "Kemarin", "2 hari lalu", "3 minggu lalu", "15 Nov 2026")
+ */
+export function formatAddedDate(dateString?: string | null): string {
+  if (!dateString) return 'Baru saja'
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return 'Baru saja'
+
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+
+    // Jika perbedaan negatif (toleransi perbedaan jam server/client)
+    if (diffMs < 0) return 'Baru saja'
+
+    const diffMinutes = Math.floor(diffMs / (1000 * 60))
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+    if (diffMinutes < 5) return 'Baru saja'
+    if (diffMinutes < 60) return `${diffMinutes} menit lalu`
+    if (diffHours < 24) return `${diffHours} jam lalu`
+    if (diffDays === 1) return 'Kemarin'
+    if (diffDays < 7) return `${diffDays} hari lalu`
+    if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7)
+      return `${weeks} minggu lalu`
+    }
+    if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30)
+      return `${months} bulan lalu`
+    }
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
+  } catch {
+    return 'Baru saja'
+  }
+}
+
+/**
+ * Format tanggal lengkap bahasa Indonesia (contoh: "15 November 2026")
+ */
+export function formatFullDate(dateString?: string | null): string {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })
+  } catch {
+    return ''
+  }
 }
 
 /**
@@ -331,6 +404,14 @@ function applyClientFilter(places: Place[], options: PlaceFilterOptions): Place[
       const [hour] = close.split(':').map(Number)
       return hour >= 21 || hour <= 4
     })
+  }
+
+  // Urutkan berdasarkan opsi: 'most_popular' atau 'newest'
+  if (options.sortBy === 'most_popular') {
+    result.sort((a, b) => (b.favorites_count || 0) - (a.favorites_count || 0))
+  } else {
+    // Default terbaru
+    result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
   }
 
   return result
