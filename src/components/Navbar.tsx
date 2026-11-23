@@ -2,11 +2,9 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Plus, User, Coffee, LogOut, ShieldCheck, ChevronDown, CheckCircle, MapPin, Clock3, Heart } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { useFavorites } from '../context/FavoritesContext'
 
 export const Navbar: React.FC = () => {
   const { user, profile, isAdmin, isTrustedContributor, signOut } = useAuth()
-  const { favorites } = useFavorites()
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
@@ -59,23 +57,6 @@ export const Navbar: React.FC = () => {
               <Clock3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C86D51]" />
               <span className="hidden md:inline">Tempat Saya</span>
               <span className="md:hidden hidden xs:inline">Saya</span>
-            </Link>
-          )}
-
-          {/* Tombol Favorit (untuk Tamu / Guest jika menyimpan favorit) */}
-          {!user && (
-            <Link
-              to="/my-places?tab=favorites"
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm font-bold text-[#4A3B32] bg-white hover:bg-[#FAF7F2] border border-[#DFD3C3] rounded-full transition-all active:scale-95 shadow-2xs"
-              title="Tempat Favorit Saya"
-            >
-              <Heart className={`w-3.5 h-3.5 ${favorites.length > 0 ? 'text-rose-500 fill-rose-500' : 'text-[#8C7A70]'}`} />
-              <span className="hidden sm:inline">Favorit</span>
-              {favorites.length > 0 && (
-                <span className="min-w-4 h-4 px-1 rounded-full bg-rose-50 text-rose-600 font-extrabold text-[10px] flex items-center justify-center border border-rose-200">
-                  {favorites.length}
-                </span>
-              )}
             </Link>
           )}
 

@@ -81,30 +81,58 @@ export async function moderatePlace(
       return { success: true, error: null }
     }
 
-    // 2. Fallback update langsung ke tabel places jika RPC gagal
-    const { error: updateError } = await (supabase
+    // 2. Fallback update langsung ke tabel places jika RPC gagal / belum dibuat
+    // Ambil opening_hours saat ini untuk dual-storage rejection_reason jika kolom tidak tersedia di cache
+    let existingHours: any = {}
+    try {
+      const { data: cur } = await (supabase
+        .from('places') as any)
+        .select('opening_hours')
+        .eq('id', placeId)
+        .single()
+      if (cur && (cur as any).opening_hours) {
+        existingHours = (cur as any).opening_hours
+      }
+    } catch {
+      // ignore
+    }
+
+    const payload: any = {
+      status: newStatus,
+      rejection_reason: newStatus !== 'approved' ? (reason || null) : null,
+      opening_hours: {
+        ...existingHours,
+        ...(newStatus !== 'approved' && reason ? { rejection_reason: reason } : {}),
+      },
+    }
+
+    let { error: updateError } = await (supabase
       .from('places') as any)
-      .update({
-        status: newStatus,
-        rejection_reason: newStatus !== 'approved' ? (reason || null) : null,
-      })
+      .update(payload)
       .eq('id', placeId)
 
-    if (updateError) {
-      // Update data di memori jika operasi jaringan bermasalah
-      memoryPlaces = memoryPlaces.map((p) =>
-        p.id === placeId ? { ...p, status: newStatus, rejection_reason: reason || null } : p
-      )
-      return { success: true, error: null }
+    // Jika Supabase schema cache mengeluh bahwa kolom rejection_reason tidak ditemukan
+    if (updateError && updateError.message.toLowerCase().includes('rejection_reason')) {
+      console.warn('Kolom rejection_reason belum ada di schema cache, menyimpan ke opening_hours JSONB...')
+      delete payload.rejection_reason
+      const retry = await (supabase.from('places') as any).update(payload).eq('id', placeId)
+      updateError = retry.error
     }
+
+    if (updateError) {
+      console.error('Gagal memoderasi tempat di Supabase:', updateError.message)
+      return { success: false, error: updateError.message }
+    }
+
+    // Update memory state jika ada
+    memoryPlaces = memoryPlaces.map((p) =>
+      p.id === placeId ? { ...p, status: newStatus, rejection_reason: reason || null } : p
+    )
 
     return { success: true, error: null }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Unknown error'
-    memoryPlaces = memoryPlaces.map((p) =>
-      p.id === placeId ? { ...p, status: newStatus, rejection_reason: reason || null } : p
-    )
-    return { success: true, error: errorMsg }
+    return { success: false, error: errorMsg }
   }
 }
 

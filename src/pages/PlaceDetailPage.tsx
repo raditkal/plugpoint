@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   Wifi,
@@ -18,7 +18,8 @@ import {
   Check,
   Star,
   Send,
-  Loader2
+  Loader2,
+  User
 } from 'lucide-react'
 import { getPlaceById, formatAddedDate, formatFullDate, getPlaceReviews, createPlaceReview, submitReport, getPlaceImageUrl } from '../services/places'
 import { useFavorites } from '../context/FavoritesContext'
@@ -35,11 +36,13 @@ const DETAIL_IMAGES = [
 
 export const PlaceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { isFavorite, toggleFavorite } = useFavorites()
   const [place, setPlace] = useState<Place | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [reportModalOpen, setReportModalOpen] = useState(false)
+  const [authReportModalOpen, setAuthReportModalOpen] = useState(false)
   const [reportSubmitted, setReportSubmitted] = useState(false)
   const [reportReason, setReportReason] = useState<ReportReason>('inaccurate_wifi')
   const [reportDescription, setReportDescription] = useState<string>('')
@@ -102,6 +105,11 @@ export const PlaceDetailPage: React.FC = () => {
   const handleReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!place) return
+
+    if (!user) {
+      setReportError('Kamu harus masuk ke akun terlebih dahulu untuk mengirim laporan.')
+      return
+    }
 
     setIsSubmittingReport(true)
     setReportError(null)
@@ -526,8 +534,14 @@ export const PlaceDetailPage: React.FC = () => {
               </p>
               <button
                 type="button"
-                onClick={() => setReportModalOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-white hover:bg-[#F5ECE1] text-[#7A4B3A] border border-[#E3C2AE] text-xs font-bold transition-colors"
+                onClick={() => {
+                  if (!user) {
+                    setAuthReportModalOpen(true)
+                  } else {
+                    setReportModalOpen(true)
+                  }
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-white hover:bg-[#F5ECE1] text-[#7A4B3A] border border-[#E3C2AE] text-xs font-bold transition-colors cursor-pointer"
               >
                 <Flag className="w-3.5 h-3.5 text-[#C86D51]" />
                 Laporkan Perubahan Data
@@ -539,12 +553,12 @@ export const PlaceDetailPage: React.FC = () => {
 
       {/* Report Modal */}
       {reportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl border border-[#EAE0D2] space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-md rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-[#EAE0D2] space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-[#2D231E] flex items-center gap-2">
-                <Flag className="w-4 h-4 text-[#C86D51]" />
-                Lapor Data Tempat
+              <h3 className="text-base sm:text-lg font-black text-[#2D231E] flex items-center gap-2">
+                <Flag className="w-4 h-4 text-[#C86D51] shrink-0" />
+                <span>Lapor Data Tempat</span>
               </h3>
               <button
                 type="button"
@@ -552,7 +566,7 @@ export const PlaceDetailPage: React.FC = () => {
                   setReportModalOpen(false)
                   setReportSubmitted(false)
                 }}
-                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs"
+                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs shrink-0 cursor-pointer"
               >
                 ✕
               </button>
@@ -627,6 +641,59 @@ export const PlaceDetailPage: React.FC = () => {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal Auth Diperlukan untuk Melaporkan Tempat */}
+      {authReportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-7 shadow-2xl border border-[#EAE0D2] text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-3xl bg-[#FAF2EB] border border-[#F0D5C3] text-[#C86D51] flex items-center justify-center">
+              <Flag className="w-7 h-7" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-black text-[#2D231E]">
+                Masuk untuk Melaporkan Tempat
+              </h3>
+              <p className="text-xs text-[#7A6B63] leading-relaxed">
+                Untuk mencegah laporan spam dan menjaga kualitas informasi direktori, kamu perlu masuk ke akun terlebih dahulu.
+              </p>
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthReportModalOpen(false)
+                  navigate('/login')
+                }}
+                className="w-full py-2.5 px-4 rounded-full bg-[#382E2B] hover:bg-[#201815] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+              >
+                <User className="w-4 h-4 text-[#F4CDBE]" />
+                <span>Masuk ke Akun</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthReportModalOpen(false)
+                  navigate('/register')
+                }}
+                className="w-full py-2.5 px-4 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3] cursor-pointer"
+              >
+                <span>Daftar Akun Baru</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAuthReportModalOpen(false)}
+                className="w-full py-1.5 text-xs font-bold text-[#A6978C] hover:text-[#2D231E] transition-colors cursor-pointer"
+              >
+                Nanti Saja
+              </button>
+            </div>
           </div>
         </div>
       )}

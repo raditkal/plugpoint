@@ -26,14 +26,10 @@ function Layout({ children }: { children: React.ReactNode }) {
       {/* FOOTER - Cozy Warm Beige */}
       <footer className="border-t border-[#EAE0D2] bg-[#F4EDE3] py-10 px-4 sm:px-6 lg:px-8 text-center text-xs text-[#7A6B63] space-y-2">
         <div className="flex items-center justify-center gap-1.5 font-bold text-sm text-[#2D231E]">
-          <span>plugpoint.</span>
-          <span className="text-[#C86D51]">☕</span>
+          <span>Plugpoint.</span>
         </div>
-        <p className="max-w-md mx-auto leading-relaxed">
-          Membantu mahasiswa, freelancer, dan pekerja remote menemukan tempat kerja yang tenang, ber-Wi-Fi kencang, dan bebas rebutan colokan.
-        </p>
         <p className="text-[11px] text-[#A6978C] pt-2">
-          © {new Date().getFullYear()} Plugpoint. Dibuat dengan cinta untuk para pemburu colokan.
+          © {new Date().getFullYear()} Plugpoint. Dibuat dengan jerih payah sendiri (NO AI).
         </p>
       </footer>
     </div>
@@ -43,8 +39,8 @@ function Layout({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <AuthProvider>
-      <FavoritesProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <FavoritesProvider>
           <Routes>
           {/* Halaman Publik */}
           <Route
@@ -110,8 +106,8 @@ function App() {
           {/* Fallback rute yang tidak dikenal */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-    </FavoritesProvider>
+      </FavoritesProvider>
+    </BrowserRouter>
   </AuthProvider>
   )
 }

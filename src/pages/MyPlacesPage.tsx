@@ -174,6 +174,18 @@ export const MyPlacesPage: React.FC = () => {
                   Disetujui ({approvedCount})
                 </button>
 
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('rejected')}
+                  className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                    filterStatus === 'rejected'
+                      ? 'bg-rose-500 text-white shadow-xs'
+                      : 'bg-[#FAF7F2] text-rose-700 hover:bg-rose-50 border border-rose-200'
+                  }`}
+                >
+                  Ditolak ({rejectedCount})
+                </button>
+
                 {revisionCount > 0 && (
                   <button
                     type="button"
@@ -185,20 +197,6 @@ export const MyPlacesPage: React.FC = () => {
                     }`}
                   >
                     Perlu Revisi ({revisionCount})
-                  </button>
-                )}
-
-                {rejectedCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setFilterStatus('rejected')}
-                    className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 ${
-                      filterStatus === 'rejected'
-                        ? 'bg-rose-500 text-white shadow-xs'
-                        : 'bg-[#FAF7F2] text-rose-700 hover:bg-rose-50 border border-rose-200'
-                    }`}
-                  >
-                    Ditolak ({rejectedCount})
                   </button>
                 )}
               </div>
@@ -257,10 +255,18 @@ export const MyPlacesPage: React.FC = () => {
                   <h3 className="text-base font-bold text-[#2D231E]">
                     {filterStatus === 'all'
                       ? 'Belum ada tempat yang kamu ajukan'
+                      : filterStatus === 'rejected'
+                      ? 'Tidak ada pengajuan yang ditolak'
+                      : filterStatus === 'pending'
+                      ? 'Tidak ada pengajuan yang menunggu moderasi'
+                      : filterStatus === 'approved'
+                      ? 'Belum ada tempat yang disetujui'
                       : 'Tidak ada tempat dengan status ini'}
                   </h3>
                   <p className="text-xs text-[#7A6B63] max-w-sm mx-auto leading-relaxed">
-                    Punya kafe langganan dengan Wi-Fi kencang dan banyak colokan? Yuk rekomendasikan sekarang!
+                    {filterStatus === 'rejected'
+                      ? 'Kabar baik! Semua tempat yang kamu rekomendasikan telah diterima atau masih dalam proses peninjauan.'
+                      : 'Punya kafe langganan dengan Wi-Fi kencang dan banyak colokan? Yuk rekomendasikan sekarang!'}
                   </p>
                 </div>
                 <div className="pt-2">
@@ -415,14 +421,33 @@ export const MyPlacesPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Catatan Moderator jika Ditolak atau Perlu Revisi */}
-                      {place.rejection_reason && (
-                        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
-                          <p className="font-bold flex items-center gap-1.5">
-                            <AlertTriangle className="w-4 h-4 text-amber-600" />
-                            <span>Catatan dari Tim Moderator:</span>
+                      {/* Catatan Moderator jika Ditolak */}
+                      {place.status === 'rejected' && (
+                        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs space-y-1.5">
+                          <p className="font-bold flex items-center gap-1.5 text-rose-700">
+                            <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                            <span>Pengajuan Ditolak oleh Moderator</span>
                           </p>
-                          <p className="leading-relaxed pl-5">{place.rejection_reason}</p>
+                          <p className="leading-relaxed pl-5.5 text-rose-800">
+                            {place.rejection_reason ||
+                              (place.opening_hours as any)?.rejection_reason ||
+                              'Pengajuan tempat ini belum dapat disetujui karena tidak memenuhi kriteria direktori Plugpoint atau merupakan tempat duplikat.'}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Catatan Moderator jika Perlu Revisi */}
+                      {place.status === 'needs_revision' && (
+                        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1.5">
+                          <p className="font-bold flex items-center gap-1.5 text-amber-800">
+                            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>Catatan Revisi dari Tim Moderator:</span>
+                          </p>
+                          <p className="leading-relaxed pl-5.5 text-amber-900">
+                            {place.rejection_reason ||
+                              (place.opening_hours as any)?.rejection_reason ||
+                              'Silakan perbarui atau lengkapi data tempat ini.'}
+                          </p>
                         </div>
                       )}
 
@@ -444,7 +469,36 @@ export const MyPlacesPage: React.FC = () => {
         {/* TAB 2: TEMPAT FAVORIT SAYA */}
         {activeTab === 'favorites' && (
           <div className="space-y-6">
-            {isLoadingFavorites ? (
+            {!user ? (
+              <div className="bg-white rounded-3xl p-10 sm:p-12 text-center border border-[#EFE7DE] shadow-xs space-y-4">
+                <div className="w-14 h-14 mx-auto rounded-3xl bg-rose-50 text-rose-500 flex items-center justify-center border border-rose-100">
+                  <Heart className="w-7 h-7 fill-rose-500" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[#2D231E]">
+                    Masuk untuk Melihat Koleksi Favoritmu
+                  </h3>
+                  <p className="text-xs text-[#7A6B63] max-w-sm mx-auto leading-relaxed">
+                    Masuk atau buat akun Plugpoint untuk menyimpan kafe dan tempat kerja favorit yang kamu sukai.
+                  </p>
+                </div>
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#382E2B] hover:bg-[#251D1A] text-white text-xs font-bold transition-all shadow-xs"
+                  >
+                    <User className="w-4 h-4 text-[#F4CDBE]" />
+                    <span>Masuk ke Akun</span>
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D5] text-[#7A4B3A] text-xs font-bold transition-colors border border-[#F0D5C3]"
+                  >
+                    <span>Daftar Gratis</span>
+                  </Link>
+                </div>
+              </div>
+            ) : isLoadingFavorites ? (
               <div className="py-20 text-center space-y-3">
                 <Loader2 className="w-8 h-8 mx-auto animate-spin text-rose-500" />
                 <p className="text-xs font-bold text-[#7A6B63]">Memuat tempat favoritmu...</p>

@@ -393,14 +393,14 @@ export const AdminPage: React.FC = () => {
         </Link>
 
         {/* Header Panel Moderasi Admin */}
-        <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#EFE7DE] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl p-4 sm:p-7 border border-[#EFE7DE] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5 sm:gap-4">
           <div className="flex items-center gap-3 sm:gap-3.5">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#FAF2EB] text-[#C86D51] flex items-center justify-center shadow-xs shrink-0">
               <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-[#2D231E]">Panel Admin</h1>
+                <h1 className="text-lg sm:text-2xl font-black text-[#2D231E]">Panel Admin</h1>
                 <span className="text-[10px] sm:text-xs bg-[#FAF2EB] text-[#C86D51] px-2.5 py-0.5 rounded-full font-bold border border-[#F0D5C3]">
                   Admin Dashboard
                 </span>
@@ -412,19 +412,19 @@ export const AdminPage: React.FC = () => {
           </div>
 
           {/* Tab Navigasi 3 Bagian Utama */}
-          <div className="flex items-center gap-1.5 bg-[#F5ECE1] p-1.5 rounded-2xl border border-[#E8DFD3] w-full md:w-auto overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 sm:gap-1.5 bg-[#F5ECE1] p-1.5 rounded-2xl border border-[#E8DFD3] w-full md:w-auto overflow-x-auto no-scrollbar">
             {/* Bagian 1: Konfirmasi Tempat Masuk */}
             <button
               type="button"
               onClick={() => setActiveTab('submissions')}
-              className={`flex-1 md:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 md:flex-initial shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'submissions'
                   ? 'bg-white text-[#2D231E] shadow-sm'
                   : 'text-[#7A6B63] hover:text-[#2D231E]'
               }`}
             >
               <FileCheck2 className="w-4 h-4 text-[#C86D51]" />
-              <span>1. Konfirmasi Tempat</span>
+              <span>1. Konfirmasi <span className="hidden xs:inline">Tempat</span></span>
               {pendingSubmissionsCount > 0 && (
                 <span className="w-5 h-5 rounded-full bg-[#C86D51] text-white text-[10px] flex items-center justify-center font-bold">
                   {pendingSubmissionsCount}
@@ -436,14 +436,14 @@ export const AdminPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('reports')}
-              className={`flex-1 md:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 md:flex-initial shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'reports'
                   ? 'bg-white text-[#2D231E] shadow-sm'
                   : 'text-[#7A6B63] hover:text-[#2D231E]'
               }`}
             >
               <Flag className="w-4 h-4 text-[#C86D51]" />
-              <span>2. Laporan Masalah</span>
+              <span>2. Laporan <span className="hidden xs:inline">Masalah</span></span>
               {pendingReportsCount > 0 && (
                 <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center font-bold">
                   {pendingReportsCount}
@@ -455,14 +455,14 @@ export const AdminPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('approved')}
-              className={`flex-1 md:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 md:flex-initial shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'approved'
                   ? 'bg-white text-[#2D231E] shadow-sm'
                   : 'text-[#7A6B63] hover:text-[#2D231E]'
               }`}
             >
               <Store className="w-4 h-4 text-[#C86D51]" />
-              <span>3. Tempat Diterima</span>
+              <span>3. Tempat <span className="hidden xs:inline">Diterima</span></span>
               {approvedPlaces.length > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200">
                   {approvedPlaces.length}
@@ -544,12 +544,12 @@ export const AdminPage: React.FC = () => {
                   return (
                     <div
                       key={place.id}
-                      className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EFE7DE] shadow-xs hover:shadow-sm transition-all space-y-4"
+                      className="bg-white rounded-3xl p-4 sm:p-6 border border-[#EFE7DE] shadow-xs hover:shadow-sm transition-all space-y-3.5 sm:space-y-4"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4EBE1] pb-4">
-                        <div className="flex items-start gap-3.5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4EBE1] pb-3.5 sm:pb-4">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
                           {getPlaceImageUrl(place) && (
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 border border-[#E8DFD3] shadow-2xs">
+                            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 border border-[#E8DFD3] shadow-2xs">
                               <img
                                 src={getPlaceImageUrl(place)!}
                                 alt={place.name}
@@ -557,11 +557,11 @@ export const AdminPage: React.FC = () => {
                               />
                             </div>
                           )}
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h2 className="text-lg font-black text-[#2D231E]">{place.name}</h2>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                              <h2 className="text-base sm:text-lg font-black text-[#2D231E] break-words">{place.name}</h2>
                               <span
-                                className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
+                                className={`text-[9px] sm:text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${
                                   place.status === 'pending'
                                     ? 'bg-amber-50 text-amber-700 border-amber-200'
                                     : 'bg-rose-50 text-rose-700 border-rose-200'
@@ -573,13 +573,13 @@ export const AdminPage: React.FC = () => {
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#7A6B63] mt-1">
                               <div className="flex items-center gap-1">
                                 <MapPin className="w-3.5 h-3.5 text-[#C86D51] shrink-0" />
-                                <span>
+                                <span className="line-clamp-1">
                                   {place.area} • {place.address}
                                 </span>
                               </div>
                               <span className="text-[#C5B7AA]">•</span>
                               <div
-                                className="flex items-center gap-1 text-[11px] text-[#8C7A70]"
+                                className="flex items-center gap-1 text-[11px] text-[#8C7A70] shrink-0"
                                 title={place.created_at ? `Diajukan pada ${formatFullDate(place.created_at)}` : undefined}
                               >
                                 <Calendar className="w-3 h-3 text-[#A8988C]" />
@@ -592,7 +592,7 @@ export const AdminPage: React.FC = () => {
                         <Link
                           to={`/places/${getShortId(place.id)}`}
                           target="_blank"
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#F2ECE3] text-[11px] font-bold text-[#5C4A3E] border border-[#DFD3C3] w-fit"
+                          className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#F2ECE3] text-[11px] font-bold text-[#5C4A3E] border border-[#DFD3C3] w-full sm:w-fit"
                         >
                           <span>Pratinjau Halaman</span>
                           <ExternalLink className="w-3 h-3" />
@@ -600,12 +600,12 @@ export const AdminPage: React.FC = () => {
                       </div>
 
                       {/* Detail Fasilitas */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                        <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs">
+                        <div className="p-2.5 sm:p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
                           <Wifi className="w-4 h-4 text-[#C86D51] shrink-0" />
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-[10px] text-[#A6978C] uppercase font-bold">Wi-Fi</p>
-                            <p className="font-extrabold text-[#2D231E]">
+                            <p className="font-extrabold text-[#2D231E] truncate">
                               {place.wifi_speed_mbps
                                 ? `${place.wifi_speed_mbps} Mbps`
                                 : `${place.wifi_rating || 0}/5 ★`}
@@ -613,11 +613,11 @@ export const AdminPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
+                        <div className="p-2.5 sm:p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
                           <Zap className="w-4 h-4 text-[#C86D51] shrink-0" />
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-[10px] text-[#A6978C] uppercase font-bold">Colokan</p>
-                            <p className="font-extrabold text-[#2D231E] capitalize">
+                            <p className="font-extrabold text-[#2D231E] capitalize truncate">
                               {place.outlet_level === 'many'
                                 ? 'Melimpah'
                                 : place.outlet_level === 'few'
@@ -627,11 +627,11 @@ export const AdminPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
+                        <div className="p-2.5 sm:p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
                           <Volume2 className="w-4 h-4 text-[#C86D51] shrink-0" />
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-[10px] text-[#A6978C] uppercase font-bold">Suasana</p>
-                            <p className="font-extrabold text-[#2D231E] capitalize">
+                            <p className="font-extrabold text-[#2D231E] capitalize truncate">
                               {place.noise_level === 'quiet'
                                 ? 'Sunyi & Tenang'
                                 : place.noise_level === 'moderate'
@@ -641,11 +641,11 @@ export const AdminPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
+                        <div className="p-2.5 sm:p-3 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] flex items-center gap-2">
                           <Clock className="w-4 h-4 text-[#C86D51] shrink-0" />
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-[10px] text-[#A6978C] uppercase font-bold">Jam Buka</p>
-                            <p className="font-extrabold text-[#2D231E]">
+                            <p className="font-extrabold text-[#2D231E] truncate">
                               {hours?.daily?.open && hours?.daily?.close
                                 ? `${hours.daily.open} - ${hours.daily.close}`
                                 : 'Setiap Hari'}
@@ -690,12 +690,12 @@ export const AdminPage: React.FC = () => {
                       )}
 
                       {/* Action Buttons Moderasi */}
-                      <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-[#F4EBE1]">
+                      <div className="flex flex-col xs:flex-row items-stretch sm:items-center justify-end gap-2 pt-2 border-t border-[#F4EBE1]">
                         {place.status !== 'approved' && (
                           <button
                             type="button"
                             onClick={() => handleApproveClick(place)}
-                            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer ${
+                            className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-full text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer w-full sm:w-auto ${
                               duplicateMatch?.isSimilar
                                 ? 'bg-amber-600 hover:bg-amber-700'
                                 : 'bg-emerald-600 hover:bg-emerald-700'
@@ -724,7 +724,7 @@ export const AdminPage: React.FC = () => {
                                 action: 'rejected',
                               })
                             }
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+                            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer w-full sm:w-auto"
                           >
                             <XCircle className="w-4 h-4" />
                             <span>Tolak Pengajuan</span>
@@ -745,15 +745,15 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'reports' && (
           <div className="space-y-4">
             {/* Filter Bar Laporan: 2 PILIHAN (Belum Dikonfirmasi & Selesai Ditinjau) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-[#EFE7DE] shadow-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#7A6B63] mr-1">Status Laporan:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-3.5 sm:p-4 rounded-3xl border border-[#EFE7DE] shadow-xs">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+                <span className="text-xs font-bold text-[#7A6B63] mr-1 shrink-0">Status:</span>
                 
                 {/* 1. Belum Dikonfirmasi */}
                 <button
                   type="button"
                   onClick={() => setReportFilter('pending')}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     reportFilter === 'pending'
                       ? 'bg-[#382E2B] text-white shadow-xs'
                       : 'bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3] border border-[#E8DFD3]'
@@ -777,7 +777,7 @@ export const AdminPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setReportFilter('reviewed')}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     reportFilter === 'reviewed'
                       ? 'bg-[#382E2B] text-white shadow-xs'
                       : 'bg-[#FAF7F2] text-[#7A6B63] hover:bg-[#F2ECE3] border border-[#E8DFD3]'
@@ -801,7 +801,7 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={fetchReports}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#EFE6DA] transition-colors cursor-pointer self-end sm:self-auto shrink-0"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isReportsLoading ? 'animate-spin' : ''}`} />
                 <span>Segarkan</span>
@@ -815,7 +815,7 @@ export const AdminPage: React.FC = () => {
                 <p className="text-xs font-bold text-[#7A6B63]">Memuat laporan masalah...</p>
               </div>
             ) : displayReports.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#EFE7DE] shadow-xs space-y-3">
+              <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-[#EFE7DE] shadow-xs space-y-3">
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl">
                   ✨
                 </div>
@@ -845,10 +845,10 @@ export const AdminPage: React.FC = () => {
                   return (
                     <div
                       key={report.id}
-                      className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EFE7DE] shadow-xs space-y-3"
+                      className="bg-white rounded-3xl p-4 sm:p-6 border border-[#EFE7DE] shadow-xs space-y-3"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F4EBE1] pb-3">
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF2EB] text-[#C86D51] border border-[#F0D5C3]">
                             {report.reason === 'inaccurate_wifi'
                               ? '📶 Wi-Fi Tidak Akurat'
@@ -864,7 +864,7 @@ export const AdminPage: React.FC = () => {
                               ? '🚫 Konten Tidak Pantas'
                               : '⚠️ Laporan Komunitas'}
                           </span>
-                          <h3 className="text-base font-bold text-[#2D231E] mt-1.5">
+                          <h3 className="text-sm sm:text-base font-bold text-[#2D231E] mt-1.5 break-words">
                             {placeName}
                             {placeArea && (
                               <span className="text-xs font-normal text-[#7A6B63] ml-2">
@@ -875,7 +875,7 @@ export const AdminPage: React.FC = () => {
                         </div>
 
                         {/* Status Resolution Badge */}
-                        <div>
+                        <div className="self-start sm:self-auto shrink-0">
                           {resolution === 'open' && (
                             <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
                               ⏳ Belum Dikonfirmasi
@@ -895,12 +895,12 @@ export const AdminPage: React.FC = () => {
                       </div>
 
                       {/* Deskripsi Laporan dari User */}
-                      <p className="text-xs text-[#5C4D45] bg-[#FAF8F5] p-3 rounded-2xl border border-[#F2ECE3]">
+                      <p className="text-xs text-[#5C4D45] bg-[#FAF8F5] p-3 rounded-2xl border border-[#F2ECE3] leading-relaxed">
                         {cleanDesc || 'Tidak ada catatan tambahan dari pelapor.'}
                       </p>
 
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
-                        <div className="flex items-center gap-2 text-[11px] text-[#A6978C]">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 text-xs">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#A6978C]">
                           <span>
                             Dilaporkan: {new Date(report.created_at).toLocaleDateString('id-ID')}
                           </span>
@@ -928,14 +928,14 @@ export const AdminPage: React.FC = () => {
                         </div>
 
                         {/* Action Buttons: Terima Laporan vs Tolak Laporan */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col xs:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                           {resolution === 'open' ? (
                             <>
                               {/* Tombol Terima Laporan (Membuka Pilihan: Edit Tempat vs Hapus Tempat) */}
                               <button
                                 type="button"
                                 onClick={() => handleOpenReportAcceptModal(report)}
-                                className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-2xs"
+                                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-2xs w-full sm:w-auto"
                                 title="Setujui laporan dan pilih tindak lanjut (Edit atau Hapus tempat)"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -945,7 +945,7 @@ export const AdminPage: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => handleDirectResolveReport(report, 'rejected')}
-                                className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-colors cursor-pointer"
+                                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-colors cursor-pointer w-full sm:w-auto"
                                 title="Tolak laporan jika informasi tidak valid"
                               >
                                 <XCircle className="w-3.5 h-3.5" />
@@ -956,7 +956,7 @@ export const AdminPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleReopenReport(report.id, report.description)}
-                              className="px-3 py-1 rounded-full bg-[#FAF7F2] hover:bg-[#F2ECE3] text-[#7A6B63] hover:text-[#2D231E] font-bold text-[11px] border border-[#DFD3C3] transition-colors cursor-pointer"
+                              className="px-4 py-2 sm:py-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#F2ECE3] text-[#7A6B63] hover:text-[#2D231E] font-bold text-xs sm:text-[11px] border border-[#DFD3C3] transition-colors cursor-pointer w-full sm:w-auto text-center"
                             >
                               Tinjau Ulang (Buka Kembali)
                             </button>
@@ -1042,10 +1042,10 @@ export const AdminPage: React.FC = () => {
                   return (
                     <div
                       key={place.id}
-                      className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EFE7DE] shadow-xs hover:shadow-sm transition-all space-y-3.5"
+                      className="bg-white rounded-3xl p-4 sm:p-6 border border-[#EFE7DE] shadow-xs hover:shadow-sm transition-all space-y-3.5"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F4EBE1] pb-3.5">
-                        <div className="flex items-start gap-3.5">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
                           {getPlaceImageUrl(place) && (
                             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 border border-[#E8DFD3] shadow-2xs">
                               <img
@@ -1055,23 +1055,23 @@ export const AdminPage: React.FC = () => {
                               />
                             </div>
                           )}
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h2 className="text-lg font-black text-[#2D231E]">{place.name}</h2>
-                              <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                              <h2 className="text-base sm:text-lg font-black text-[#2D231E] break-words">{place.name}</h2>
+                              <span className="text-[9px] sm:text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                                 ✓ Aktif Terbit
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#7A6B63] mt-1">
                               <div className="flex items-center gap-1">
                                 <MapPin className="w-3.5 h-3.5 text-[#C86D51] shrink-0" />
-                                <span>
+                                <span className="line-clamp-1">
                                   {place.area} • {place.address}
                                 </span>
                               </div>
                               <span className="text-[#C5B7AA]">•</span>
                               <div
-                                className="flex items-center gap-1 text-[11px] text-[#8C7A70]"
+                                className="flex items-center gap-1 text-[11px] text-[#8C7A70] shrink-0"
                                 title={place.created_at ? `Terbit sejak ${formatFullDate(place.created_at)}` : undefined}
                               >
                                 <Calendar className="w-3 h-3 text-[#A8988C]" />
@@ -1081,11 +1081,11 @@ export const AdminPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                           <Link
                             to={`/places/${getShortId(place.id)}`}
                             target="_blank"
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#F2ECE3] text-[11px] font-bold text-[#5C4A3E] border border-[#DFD3C3]"
+                            className="inline-flex items-center justify-center gap-1 px-3 py-2 sm:py-1.5 rounded-full bg-[#FAF7F2] hover:bg-[#F2ECE3] text-[11px] font-bold text-[#5C4A3E] border border-[#DFD3C3] flex-1 sm:flex-initial"
                           >
                             <span>Buka Halaman</span>
                             <ExternalLink className="w-3 h-3" />
@@ -1095,7 +1095,7 @@ export const AdminPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => openEditModal(place)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D3] text-[#A2533B] text-[11px] font-bold border border-[#E9D0BE] transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center gap-1 px-3 py-2 sm:py-1.5 rounded-full bg-[#FAF2EB] hover:bg-[#F3E2D3] text-[#A2533B] text-[11px] font-bold border border-[#E9D0BE] transition-colors cursor-pointer flex-1 sm:flex-initial"
                             title="Edit data tempat ini"
                           >
                             <Pencil className="w-3 h-3 text-[#C86D51]" />
@@ -1106,7 +1106,7 @@ export const AdminPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setPlaceToDelete({ place })}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold border border-rose-200 transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center gap-1 px-3 py-2 sm:py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold border border-rose-200 transition-colors cursor-pointer flex-1 sm:flex-initial"
                             title="Hapus tempat ini dari direktori"
                           >
                             <Trash2 className="w-3 h-3 text-rose-600" />
@@ -1187,36 +1187,36 @@ export const AdminPage: React.FC = () => {
       {/* (Opsi 1: Edit Tempat, Opsi 2: Hapus Tempat, Opsi 3: Selesai) */}
       {/* ============================================================ */}
       {reportActionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-7 shadow-2xl border border-[#EAE0D2] space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-[#EAE0D2] space-y-4 max-h-[90vh] overflow-y-auto my-auto">
             <div className="flex items-center justify-between border-b border-[#F4EBE1] pb-3">
               <div className="flex items-center gap-2 text-emerald-700">
-                <CheckCircle2 className="w-5 h-5" />
-                <h3 className="text-base font-black text-[#2D231E]">
+                <CheckCircle2 className="w-5 h-5 shrink-0" />
+                <h3 className="text-sm sm:text-base font-black text-[#2D231E]">
                   Setujui Laporan Komunitas
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setReportActionModal(null)}
-                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs cursor-pointer"
+                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs cursor-pointer shrink-0"
               >
                 ✕
               </button>
             </div>
 
             {/* Info Laporan & Tempat */}
-            <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] space-y-1.5 text-xs">
-              <div className="flex items-center justify-between">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EFE7DE] space-y-1.5 text-xs">
+              <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1">
                 <span className="font-bold text-[#8C7A70] uppercase text-[10px]">Tempat Terlapor:</span>
-                <span className="font-extrabold text-[#2D231E]">
+                <span className="font-extrabold text-[#2D231E] truncate">
                   {reportActionModal.place?.name || reportActionModal.report.places?.name || 'Tempat'}
                 </span>
               </div>
-              <p className="text-[#5C4D45] text-[11px]">
+              <p className="text-[#5C4D45] text-[11px] break-words">
                 {reportActionModal.place?.area || reportActionModal.report.places?.area || '-'} • {reportActionModal.place?.address || ''}
               </p>
-              <div className="pt-2 border-t border-[#E8DFD3] text-[11px] text-[#7A6B63]">
+              <div className="pt-2 border-t border-[#E8DFD3] text-[11px] text-[#7A6B63] break-words">
                 <strong className="text-[#382E2B]">Catatan Pelapor:</strong> "{getCleanReportDescription(reportActionModal.report.description) || 'Tidak ada catatan tambahan'}"
               </div>
             </div>
@@ -1240,7 +1240,7 @@ export const AdminPage: React.FC = () => {
                     alert('Data tempat tidak ditemukan di memori')
                   }
                 }}
-                className="p-4 rounded-2xl border-2 border-[#E9D0BE] bg-[#FAF4ED] hover:bg-[#F5ECE1] hover:border-[#C86D51] transition-all text-left flex flex-col justify-between group cursor-pointer shadow-xs"
+                className="p-3.5 sm:p-4 rounded-2xl border-2 border-[#E9D0BE] bg-[#FAF4ED] hover:bg-[#F5ECE1] hover:border-[#C86D51] transition-all text-left flex flex-col justify-between group cursor-pointer shadow-xs"
               >
                 <div className="space-y-1">
                   <div className="w-8 h-8 rounded-xl bg-white text-[#C86D51] flex items-center justify-center font-bold shadow-2xs">
@@ -1272,7 +1272,7 @@ export const AdminPage: React.FC = () => {
                     alert('Data tempat tidak ditemukan di memori')
                   }
                 }}
-                className="p-4 rounded-2xl border-2 border-rose-200 bg-rose-50/60 hover:bg-rose-100/70 hover:border-rose-400 transition-all text-left flex flex-col justify-between group cursor-pointer shadow-xs"
+                className="p-3.5 sm:p-4 rounded-2xl border-2 border-rose-200 bg-rose-50/60 hover:bg-rose-100/70 hover:border-rose-400 transition-all text-left flex flex-col justify-between group cursor-pointer shadow-xs"
               >
                 <div className="space-y-1">
                   <div className="w-8 h-8 rounded-xl bg-white text-rose-600 flex items-center justify-center font-bold shadow-2xs">
@@ -1292,11 +1292,11 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Opsi 3: Hanya Terima Laporan Tanpa Ubah Data Tempat */}
-            <div className="pt-2 border-t border-[#F2ECE3] flex items-center justify-between">
+            <div className="pt-3 border-t border-[#F2ECE3] flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2.5">
               <button
                 type="button"
                 onClick={() => setReportActionModal(null)}
-                className="text-xs font-bold text-[#7A6B63] hover:text-[#2D231E] cursor-pointer"
+                className="w-full sm:w-auto py-2 px-3 text-center text-xs font-bold text-[#7A6B63] hover:text-[#2D231E] cursor-pointer"
               >
                 Batal
               </button>
@@ -1309,7 +1309,7 @@ export const AdminPage: React.FC = () => {
                     'accepted'
                   )
                 }
-                className="px-4 py-2 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#F2ECE3] border border-[#DFD3C3] cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#F2ECE3] border border-[#DFD3C3] cursor-pointer text-center"
               >
                 ✓ Tandai Diterima Saja (Tanpa Perubahan)
               </button>
@@ -1322,19 +1322,19 @@ export const AdminPage: React.FC = () => {
       {/* MODAL FORM EDIT DATA TEMPAT                                  */}
       {/* ============================================================ */}
       {editingPlace && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-7 shadow-2xl border border-[#EAE0D2] space-y-4 my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-[#EAE0D2] space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-[#F4EBE1] pb-3">
               <div className="flex items-center gap-2 text-[#C86D51]">
-                <Pencil className="w-5 h-5" />
-                <h3 className="text-base font-black text-[#2D231E]">
+                <Pencil className="w-5 h-5 shrink-0" />
+                <h3 className="text-sm sm:text-base font-black text-[#2D231E]">
                   Edit Informasi Tempat
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingPlace(null)}
-                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs cursor-pointer"
+                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs cursor-pointer shrink-0"
               >
                 ✕
               </button>
@@ -1410,7 +1410,7 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Kecepatan Wi-Fi & Colokan */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-[#4A3B32]">Kecepatan Wi-Fi (Mbps)</label>
                   <input
@@ -1444,7 +1444,7 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Suasana & Jam Buka */}
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div className="space-y-1">
                   <label className="font-bold text-[#4A3B32]">Suasana</label>
                   <select
@@ -1492,11 +1492,11 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#F2ECE3]">
+              <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 pt-3 border-t border-[#F2ECE3]">
                 <button
                   type="button"
                   onClick={() => setEditingPlace(null)}
-                  className="px-4 py-2 rounded-full text-xs font-bold text-[#7A6B63] hover:bg-[#F2ECE3] cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2 rounded-full text-xs font-bold text-[#7A6B63] hover:bg-[#F2ECE3] cursor-pointer text-center"
                 >
                   Batal
                 </button>
@@ -1504,7 +1504,7 @@ export const AdminPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isEditingSaving}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full bg-[#C86D51] hover:bg-[#B35A3F] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isEditingSaving ? (
                     <>
@@ -1525,16 +1525,16 @@ export const AdminPage: React.FC = () => {
       {/* MODAL PENOLAKAN PENGANJUAN TEMPAT                            */}
       {/* ============================================================ */}
       {selectedPlaceForAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl border border-[#EAE0D2] space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-[#2D231E]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-md rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-[#EAE0D2] space-y-4 my-auto max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#F4EBE1] pb-3">
+              <h3 className="text-base sm:text-lg font-black text-[#2D231E]">
                 Tolak Pengajuan Tempat
               </h3>
               <button
                 type="button"
                 onClick={() => setSelectedPlaceForAction(null)}
-                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs cursor-pointer"
+                className="w-7 h-7 rounded-full bg-[#F5ECE1] text-[#7A6B63] hover:text-[#2D231E] flex items-center justify-center font-bold text-xs cursor-pointer shrink-0"
               >
                 ✕
               </button>
@@ -1542,7 +1542,7 @@ export const AdminPage: React.FC = () => {
 
             <p className="text-xs text-[#7A6B63]">
               Berikan alasan penolakan untuk tempat{' '}
-              <strong>{selectedPlaceForAction.place.name}</strong>:
+              <strong className="text-[#2D231E]">{selectedPlaceForAction.place.name}</strong>:
             </p>
 
             <form onSubmit={handleConfirmAction} className="space-y-4">
@@ -1555,18 +1555,18 @@ export const AdminPage: React.FC = () => {
                 className="w-full text-xs p-3.5 rounded-2xl border border-[#DFD3C3] bg-[#FAF7F2] text-[#382E2B] focus:outline-none focus:border-[#C86D51]"
               />
 
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 pt-1 border-t border-[#F2ECE3]">
                 <button
                   type="button"
                   onClick={() => setSelectedPlaceForAction(null)}
-                  className="px-4 py-2.5 rounded-full text-xs font-bold text-[#7A6B63] hover:bg-[#F5ECE1] cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-full text-xs font-bold text-[#7A6B63] hover:bg-[#F5ECE1] cursor-pointer text-center"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isActionSubmitting}
-                  className="px-5 py-2.5 rounded-full text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 bg-rose-600 hover:bg-rose-700 cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-full text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 bg-rose-600 hover:bg-rose-700 cursor-pointer text-center"
                 >
                   {isActionSubmitting ? 'Memproses...' : 'Tolak Tempat Ini'}
                 </button>
@@ -1580,14 +1580,14 @@ export const AdminPage: React.FC = () => {
       {/* MODAL PERINGATAN APPROVAL TEMPAT POTENSI DUPLIKAT            */}
       {/* ============================================================ */}
       {duplicateApprovalWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-7 shadow-2xl border border-amber-200 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-amber-200 space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-2.5 text-amber-600 border-b border-[#F4EBE1] pb-3">
-              <div className="w-9 h-9 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-700">
+              <div className="w-9 h-9 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-700 shrink-0">
                 <AlertTriangle className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="text-base font-black text-[#2D231E]">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-black text-[#2D231E]">
                   Peringatan: Potensi Tempat Duplikat
                 </h3>
                 <p className="text-[11px] text-[#7A6B63]">
@@ -1596,11 +1596,11 @@ export const AdminPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-3 text-xs bg-[#FAF7F2] p-4 rounded-2xl border border-[#EFE7DE]">
+            <div className="space-y-3 text-xs bg-[#FAF7F2] p-3.5 sm:p-4 rounded-2xl border border-[#EFE7DE]">
               <div>
                 <p className="text-[10px] font-bold uppercase text-[#8C7A70]">Tempat yang akan disetujui:</p>
                 <p className="font-extrabold text-[#2D231E] text-sm mt-0.5">{duplicateApprovalWarning.place.name}</p>
-                <p className="text-[#5C4D45]">{duplicateApprovalWarning.place.area} • {duplicateApprovalWarning.place.address}</p>
+                <p className="text-[#5C4D45] text-[11px]">{duplicateApprovalWarning.place.area} • {duplicateApprovalWarning.place.address}</p>
               </div>
 
               <div className="pt-2 border-t border-[#E8DFD3]">
@@ -1608,12 +1608,12 @@ export const AdminPage: React.FC = () => {
                   <p className="text-[10px] font-bold uppercase text-amber-800">
                     Mirip dengan tempat yang sudah terbit:
                   </p>
-                  <span className="text-[10px] font-extrabold bg-amber-200/90 text-amber-950 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-extrabold bg-amber-200/90 text-amber-950 px-2 py-0.5 rounded-full shrink-0">
                     {duplicateApprovalWarning.match.similarityPercent}% Mirip
                   </span>
                 </div>
                 <p className="font-extrabold text-amber-950 text-sm mt-0.5">{duplicateApprovalWarning.match.matchedPlace?.name}</p>
-                <p className="text-[#5C4D45]">{duplicateApprovalWarning.match.matchedPlace?.area} • {duplicateApprovalWarning.match.matchedPlace?.address}</p>
+                <p className="text-[#5C4D45] text-[11px]">{duplicateApprovalWarning.match.matchedPlace?.area} • {duplicateApprovalWarning.match.matchedPlace?.address}</p>
                 <p className="text-[11px] text-amber-800 mt-1">
                   Kata / ejaan mirip: <strong>{duplicateApprovalWarning.match.matchedWords.join(', ')}</strong>
                 </p>
@@ -1624,18 +1624,18 @@ export const AdminPage: React.FC = () => {
               Apakah tempat ini merupakan cabang berbeda atau tempat yang sama persis? Jika tempat ini duplikat, Anda dapat membatalkan dan menolak pengajuan.
             </p>
 
-            <div className="flex flex-wrap items-center justify-end gap-2.5 pt-2 border-t border-[#F2ECE3]">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 pt-2 border-t border-[#F2ECE3]">
               <button
                 type="button"
                 onClick={() => setDuplicateApprovalWarning(null)}
-                className="px-4 py-2.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#F2ECE3] transition-colors cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#F2ECE3] transition-colors cursor-pointer text-center"
               >
                 Batal & Periksa Dulu
               </button>
               <button
                 type="button"
                 onClick={() => executeApprove(duplicateApprovalWarning.place)}
-                className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
               >
                 Tetap Setujui (Bukan Duplikat)
               </button>
@@ -1648,14 +1648,14 @@ export const AdminPage: React.FC = () => {
       {/* MODAL KONFIRMASI HAPUS TEMPAT                                */}
       {/* ============================================================ */}
       {placeToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl border border-rose-200 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#2D231E]/40 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-md rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-rose-200 space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-3 text-rose-600 border-b border-[#F4EBE1] pb-3.5">
               <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-700 shrink-0">
                 <Trash2 className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="text-base font-black text-[#2D231E]">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-black text-[#2D231E]">
                   Hapus Tempat Secara Permanen?
                 </h3>
                 <p className="text-[11px] text-[#7A6B63]">
@@ -1664,24 +1664,24 @@ export const AdminPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-rose-50/50 border border-rose-200 space-y-2 text-xs">
-              <p className="text-rose-900 font-bold text-sm">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-50/50 border border-rose-200 space-y-2 text-xs">
+              <p className="text-rose-900 font-bold text-sm break-words">
                 "{placeToDelete.place.name}"
               </p>
-              <p className="text-[#7A6B63]">
+              <p className="text-[#7A6B63] text-[11px] break-words">
                 {placeToDelete.place.area} • {placeToDelete.place.address}
               </p>
-              <p className="text-rose-800 leading-relaxed pt-1 border-t border-rose-200/80">
+              <p className="text-rose-800 leading-relaxed pt-1 border-t border-rose-200/80 text-[11px]">
                 ⚠️ Tempat ini akan dihapus permanen dari database. Semua riwayat ulasan, rating Wi-Fi, dan daftar favorit pengguna yang menyimpan tempat ini akan ikut terhapus.
               </p>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 pt-2 border-t border-[#F2ECE3]">
               <button
                 type="button"
                 disabled={isDeleting}
                 onClick={() => setPlaceToDelete(null)}
-                className="px-4 py-2.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#F2ECE3] transition-colors cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-full text-xs font-bold text-[#5C4A3E] hover:bg-[#F2ECE3] transition-colors cursor-pointer text-center"
               >
                 Batal
               </button>
@@ -1689,7 +1689,7 @@ export const AdminPage: React.FC = () => {
                 type="button"
                 disabled={isDeleting}
                 onClick={handleConfirmDelete}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 text-center"
               >
                 {isDeleting ? (
                   <>

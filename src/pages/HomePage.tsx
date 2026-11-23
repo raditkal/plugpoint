@@ -44,7 +44,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectPlace }) => {
           </h1>
 
           <p className="text-xs sm:text-sm text-[#7A6B63] max-w-lg mx-auto leading-relaxed px-2">
-            Temukan tempat nugas dengan Wi-Fi kencang, colokan melimpah, dan suasana tenang di area Simpang Timbangan, Gang Lampung, hingga Tanjung Senai.
+            Temukan Workspace terbaik di area Indralaya.
           </p>
 
           {/* Search Bar & Quick Filters */}

@@ -643,6 +643,13 @@ export async function submitReport(reportData: {
     const { data: { session } } = await supabase.auth.getSession()
     const reporterId = session?.user?.id || null
 
+    if (!reporterId) {
+      return {
+        success: false,
+        error: 'Akses ditolak: Kamu perlu masuk ke akun terlebih dahulu untuk mengirimkan laporan.',
+      }
+    }
+
     const { error } = await (supabase
       .from('reports') as any)
       .insert({
